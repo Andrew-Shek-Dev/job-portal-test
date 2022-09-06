@@ -60,18 +60,8 @@ scripts: {
 }
 ```
 
-### Create App.tsx and index.tsx
+### Create index.tsx
 ```tsx
-//App.tsx
-import { AppProps } from 'next/app'
-import React from 'react'
-
-const App = ({Component,pageProps}:AppProps) => {
-  return <Component {...pageProps}/>
-}
-
-export default App
-
 //index.tsx
 import React from 'react'
 const Home = () => {
@@ -88,3 +78,91 @@ yarn start:next
 
 ### Remark
 add .next folder to your .gitignore - that is where NEXT.js stores its builds.
+
+### Install nest-next
+```
+yarn add nest-next
+```
+
+### Setup the connection between nest.js and next.js
+```typescript
+//app.module.ts
+//...
+import { RenderModule } from 'nest-next';
+import Next from 'next';
+//...
+@Module({
+    imports: [RenderModule.forRootAsync(Next({dev:true}),{ viewsDir: null })],
+    controllers: [AppController],
+    providers: [AppService],
+})
+export class AppModule {}
+```
+
+```typescript
+//app.controller.ts
+import { Controller, Get, Render } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+    constructor(private readonly appService: AppService) {}
+
+    @Get()
+    @Render('index')
+    home() {
+        return {};
+    }
+}
+```
+
+### Setup AWS Amplify
+```bash
+amplify init
+```
+
+```
+? Enter a name for the project <Project Name>
+The following configuration will be applied:
+
+Project information
+| Name: <Project Name>
+| Environment: dev
+| Default editor: Visual Studio Code
+| App type: javascript
+| Javascript framework: react
+| Source Directory Path: src
+| Distribution Directory Path: build
+| Build Command: npm run-script build
+| Start Command: npm run-script start
+
+? Initialize the project with the above configuration? **No**
+? Enter a name for the environment dev
+? Choose your default editor: Visual Studio Code
+? Choose the type of app that you're building javascript
+Please tell us about your project
+? What javascript framework are you using react
+? Source Directory Path:  src
+? Distribution Directory Path: **.next**
+? Build Command:  npm run-script build
+? Start Command: npm run-script start
+Using default provider  awscloudformation
+....
+⠙ Initializing project in the cloud...
+....
+Initialized your environment successfully.
+
+Your project has been successfully initialized and connected to the cloud!
+```
+
+```bash
+amplify add hosting
+```
+
+```
+? Select the plugin module to execute Hosting with Amplify Console (Managed hosting with custom domains, Continuous deployment)
+? Choose a type Continuous deployment (Git-based deployments)
+? Continuous deployment is configured in the Amplify Console. Please hit enter once you connect your repository 
+....
+Remaining Steps are worked on AWS
+```

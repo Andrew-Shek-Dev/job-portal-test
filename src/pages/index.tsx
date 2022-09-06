@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React from 'react';
 
 const Home = () => {
   return <h1>Tecky Job Portal</h1>;
