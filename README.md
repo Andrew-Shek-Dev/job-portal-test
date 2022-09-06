@@ -215,3 +215,9 @@ module.exports = {
 ```
 
 ### Enable Amplify Studio
+Done on AWS Amplify Portal
+
+### Install AWS Amplify Libraries( with React UI )
+```bash
+npm install aws-amplify @aws-amplify/ui-react
+```
