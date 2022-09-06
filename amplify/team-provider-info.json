@@ -1,23 +1,23 @@
 {
-  "dev": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-teckyjobportaltest-dev-145003-authRole",
-      "UnauthRoleArn": "arn:aws:iam::752060894489:role/amplify-teckyjobportaltest-dev-145003-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::752060894489:role/amplify-teckyjobportaltest-dev-145003-authRole",
-      "Region": "ap-southeast-2",
-      "DeploymentBucketName": "amplify-teckyjobportaltest-dev-145003-deployment",
-      "UnauthRoleName": "amplify-teckyjobportaltest-dev-145003-unauthRole",
-      "StackName": "amplify-teckyjobportaltest-dev-145003",
-      "StackId": "arn:aws:cloudformation:ap-southeast-2:752060894489:stack/amplify-teckyjobportaltest-dev-145003/247f2600-2db0-11ed-92eb-0a1462f9996a",
-      "AmplifyAppId": "dymr81rejahti"
-    },
-    "categories": {
-      "hosting": {
-        "amplifyhosting": {
-          "appId": "dymr81rejahti",
-          "type": "cicd"
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-teckyjobportaltest-dev-175247-authRole",
+            "UnauthRoleArn": "arn:aws:iam::752060894489:role/amplify-teckyjobportaltest-dev-175247-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::752060894489:role/amplify-teckyjobportaltest-dev-175247-authRole",
+            "Region": "ap-southeast-1",
+            "DeploymentBucketName": "amplify-teckyjobportaltest-dev-175247-deployment",
+            "UnauthRoleName": "amplify-teckyjobportaltest-dev-175247-unauthRole",
+            "StackName": "amplify-teckyjobportaltest-dev-175247",
+            "StackId": "arn:aws:cloudformation:ap-southeast-1:752060894489:stack/amplify-teckyjobportaltest-dev-175247/aa597820-2dc9-11ed-b982-0a75e2bbbb06",
+            "AmplifyAppId": "d1u8o1r9xxp38d"
+        },
+        "categories": {
+            "hosting": {
+                "amplifyhosting": {
+                    "appId": "d1u8o1r9xxp38d",
+                    "type": "cicd"
+                }
+            }
         }
-      }
     }
-  }
 }

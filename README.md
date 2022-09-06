@@ -117,6 +117,7 @@ export class AppController {
 ```
 
 ### Setup AWS Amplify
+Reference: https://docs.amplify.aws/guides/hosting/nextjs/q/platform/js/#adding-amplify-hosting-1
 ```bash
 amplify init
 ```
@@ -166,3 +167,51 @@ amplify add hosting
 ....
 Remaining Steps are worked on AWS
 ```
+
+### AWS Amplify Note:
+Reference : https://stackoverflow.com/questions/69554485/eslint-error-must-use-import-to-load-es-module
+
+The error, "The file does not match your project config: src/aws-exports.js." , will be shown when run `yarn build`.
+To fix this issue, please install following library
+```
+yarn add @babel/eslint-parser
+```
+
+Next, update the `.eslintrc.js` as following:
+```javascript
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json',
+    tsconfigRootDir : __dirname, 
+    sourceType: 'module',
+    requireConfigFile: false, //<--let it ignore Babel config file
+  },
+  plugins: ['@typescript-eslint/eslint-plugin'],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
+  },
+  ignorePatterns: ['.eslintrc.js'],
+  rules: {
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off'
+  },
+  //Let it include all of js files
+  overrides:[
+    {
+      "files": ['*.js'],
+      "parser": '@babel/eslint-parser',
+    },
+  ]
+};
+```
+
+### Enable Amplify Studio
