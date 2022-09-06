@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
 const Home = () => {
-  return <h1>Job Portal 1s</h1>;
+  return <h1>Tecky Job Portal</h1>;
 };
 export default Home;
