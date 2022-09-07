@@ -15,16 +15,51 @@ TBA
 
 所以 Next.js 的出現能夠解決工程師心中的痛，不必再花費很多時間處理 pre-rendering 或 SSR 的問題，而是利用框架的優勢，讓工程師更專注在開發核心功能上面。
 
-## Handling Server Side Rendering (SSR)/Static Side Generation (SSG)
+### Handling Server Side Rendering (SSR)/Static Side Generation (SSG)
 Next.js 是一個基於 React 的框架，它同時支援 SSR (Server Side Rendering) 與 SSG (Static Side Generation) 兩種方法，不需要很多的設定就可以讓網站同時有這兩種功能。
 
 Next.js 在設計上可以混用兩種方法，像是 /page-a 希望能夠 SSR，因為網站內容很常改變，需要 API 支援變動頻繁的資料；而 /page-b 則是使用 SSG 則是可以用在內容較不常改變的頁面，例如 Landing Page 或部落格等
 
-## Optimizing Image Files
-SEO => content => core web vitals mark => speed and newer image format such as webp(< 45% of PNG file size )=>webpack/gulp + plugin => complex setup/maintenance => Next.js simplify the processing (depend on browser supported format)
+### Optimizing Image Files
+SEO => content => core web vitals mark => speed and newer image format such as WEBP(< 45% of PNG file size )=>webpack/gulp + plugin => complex setup/maintenance => Next.js simplify the processing (depend on browser supported format)
 
 ## File Structure
 * pages - store all of pages (file-based routing)
 * next.config.js - application-specific settings such as .env variables,base path, header, webpack config,etc...
 * next-env.d.ts - import all types used in Next.js (let Next.js support *.module.css without config under typescript). 
 * .eslintrc - control quality of source code
+
+## Concept Section : CSR (Client Side Rendering) - React
+第一次跟伺服器請求的 HTML 檔裡面幾乎不包含任何的內容，伺服器並沒有傳入資料到 HTML。接著，後續會再透過載入的 bundle，也就是 JS 的檔案，再讓 JS 執行 AJAX 跟伺服器請求資料，最後將資料渲染到畫面上（JS會塞入資料到 <div> 的節點中。）。
+
+Pros
+* Bundle 在一開始就載入進來，後續渲染畫面就不用不斷地跟伺服器端交互，體感上會比 SSR 快，而且在切換頁面的使用者體驗也會更好。
+* 對於伺服器來說，也會有較小的負擔。
+Cons
+* Bundle 需要包含呼叫 API 的程式碼，一般來說整體會檔案大小會比較大一點，因此載入的時間就會稍微長一些。在載入完之後，也需要呼叫 API 也是一段時間成本。
+* 資料都是在瀏覽器端由 AJAX 發送請求跟伺服器端拿資料，如此一來 google 的爬蟲就沒辦法拿到資料，對於有礙於 SEO。
+
+## Concept Section : SSR (Server Side Rendering) - PHP vs Next.js
+PHP: 透過伺服器端處理任何的資料，然後再直接編譯成 HTML 檔案，最後使用者看到的就是完整包含資料的 HTML。缺點是在切換頁面時，瀏覽器的畫面很明顯地閃爍，大家應該都有經驗，在這種情況下瀏覽網站的使用者體驗 (UX) 不是很好。
+
+SPA頁面不必再因為畫面不斷閃爍, 但因為資料都是在瀏覽器端由 AJAX 發送請求跟伺服器端拿資料，如此一來 google 的爬蟲就沒辦法拿到資料，對於有礙於 SEO。
+
+SSR can resolve this issue, but SSR and SPA need working together nowadays. HTML content with dynamic data send to the client such as browser, so google 爬蟲也就可以順利地爬到網站中的內容。
+
+Pros
+* SEO-friendly
+* 網頁的資料(HTML)都是動態的，而且使用者在看到瀏覽網頁時還不用等待 API 回來後，再透過 JS 渲染資料到畫面上，大部分的時候這種方式的使用者體驗更好。
+
+Cons
+* 伺服器一直處理使用者的請求，一直產生有資料的 HTML，並送到瀏覽器端，這樣的工作對於伺服器來說是一個負擔。如果是blog case，就會唔太適合。因為Blog不會每分每秒都在改變，浪費資源處理並產生有資料的HTML - SSG幫到你！
+
+## Concept Section : SSG (Static Side Generation) - Next.js
+SSG 意味著所有的內容都在 bulid 的時候都打包進入檔案中，所以使用者在瀏覽網站時，就可以拿到完整的 HTML 檔案。優點除了可以有利於 SEO 之外，還有因為每次使用者拿到的 HTML 內容都不會變，所以還可以讓 HTML 被 cache 在 CDN 上，很適合用在資料變動較小的網站中，像是Blog、產品介紹頁這種應用中。
+
+## Concept Section : Factors on selection of CSR,SSR and SSG
+* SEO (CSR 實際上可以參與 SEO，但是不利於內容變動快速的網站)
+* 更快地載入頁面內容 ?
+    1. SSG < SSR < CSR
+    2. client-side hardware and software performance
+    3. SSG vs SSR => 內容是靜態?變動很頻繁?
+    4. 頁面中的有些內容其實不必參與 SEO 的過程，SSR 只需把「對使用者有價值的資料」渲染完畢，把剩下的部分交由 CSR 處理，使用者可以更快地看到內容, 有利於「First Contentful Paint」的SEO評分。
