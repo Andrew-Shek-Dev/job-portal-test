@@ -63,3 +63,9 @@ SSG 意味著所有的內容都在 bulid 的時候都打包進入檔案中，所
     2. client-side hardware and software performance
     3. SSG vs SSR => 內容是靜態?變動很頻繁?
     4. 頁面中的有些內容其實不必參與 SEO 的過程，SSR 只需把「對使用者有價值的資料」渲染完畢，把剩下的部分交由 CSR 處理，使用者可以更快地看到內容, 有利於「First Contentful Paint」的SEO評分。
+
+## Next.js與CSR,SSR and SSG
+* getStaticProps (SSG)： 在 build 的時候抓取資料
+* getStaticPaths (SSG)： dynamic routes?
+* getServerSideProps (SSR)：在使用者進入網頁時，每一次發送請求伺服器都會抓取資料
+* react-router-dom (CSR): useEffect,useState,etc....

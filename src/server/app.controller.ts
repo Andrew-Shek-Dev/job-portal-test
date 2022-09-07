@@ -14,4 +14,22 @@ export class AppController {
   home() {
     return {};
   }
+
+  @Get('/csr')
+  @Render('csr')
+  csr(){
+    return {}
+  }
+
+  @Get('/ssr')
+  @Render('ssr')
+  ssr(){
+    return {}
+  }
+
+  @Get('/ssg')
+  @Render('ssg')
+  ssg(){
+    return {}
+  }
 }
