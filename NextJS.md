@@ -69,3 +69,86 @@ SSG 意味著所有的內容都在 bulid 的時候都打包進入檔案中，所
 * getStaticPaths (SSG)： dynamic routes?
 * getServerSideProps (SSR)：在使用者進入網頁時，每一次發送請求伺服器都會抓取資料
 * react-router-dom (CSR): useEffect,useState,etc....
+
+## File-based routing
+* basic unit: page equivalent to react component
+* file name = router(path) name
+* static route, dynamic route, catch all route
+
+### Static Routes
+這是最基本定義 page 的方式。你的資料夾層級如何，url必如何。無需再自定義路由，just like react。
+pages/index.tsx => "/"
+pages/post.tsx => page/post/index.tsx => "/post"
+
+```
+如果是 component 是一個 page，則它必須用 default export 而不是 named export 。
+```
+
+### Dynamic Routes
+動態的 url such as `/post/<post-id>`。
+ `/post/<post-id>` => `/pages/post/[postId].tsx`
+
+是Page中如何取得postId？
+```tsx
+import { useRouter } from "next/router";
+
+const Post = () => {
+  const router = useRouter();
+  const { postId } = router.query; //<-- 1
+
+  return <p>Post: {postId}</p>;
+};
+
+export default Post;
+```
+
+How about `/post/123?hello=world`?
+```tsx
+import { useRouter } from "next/router";
+
+const Post = () => {
+  const router = useRouter();
+  const { postId, hello} = router.query; //<--
+
+  return <p>Post: {hello} {postId}</p>;
+};
+
+export default Post;
+```
+
+How about `/post/123?postId=abc`?
+```tsx
+import { useRouter } from "next/router";
+
+const Post = () => {
+  const router = useRouter();
+  const { postId } = router.query; //<--123 (override value)
+
+  return <p>Post: {postId}</p>;
+};
+
+export default Post;
+```
+
+`/pages/post/<postId>/<commentId>.tsx` => `pages/post/[postId]/[commentId].tsx`
+
+### catch all routes
+一篇 post 的設 url 會設計成這個樣子 /pages/post/<year>/<month>/<day> ，接下來讀者可能會頭痛了，難道要定義多層級的資料夾嗎？而且最後可能還只有一個 /pages/.../day.tsx ，這樣感覺挺麻煩的。
+
+使用官方稱作為「catch all routes」的定義方式，一次拿到所有層級的參數。
+
+`/post/2021/12/31` =>`/pages/[...date].tsx` => 無限地加上新的參數 => 陣列被儲存在 router.query
+
+```json
+{
+  date: [2021, 12, 31];
+}
+```
+
+
+```
+！注意！
+在使用 router.query 時要注意「第一次 render 時拿不到值」的問題，因為 Next.js 有 Automatic Static Optimization 的機制，在第一個階段 (第一次渲染) 會先執行 pre-rendering 產生靜態的 HTML，這時候 router.query 會是空的 {} ，在第二個階段 (第二次渲染) 時才能夠從 router.query 中拿到值。
+
+解決方法：做if condition checking
+```
