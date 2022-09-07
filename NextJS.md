@@ -25,5 +25,6 @@ SEO => content => core web vitals mark => speed and newer image format such as w
 
 ## File Structure
 * pages - store all of pages (file-based routing)
-* next.config.js - application-specific settings such as .env variables
-* 
+* next.config.js - application-specific settings such as .env variables,base path, header, webpack config,etc...
+* next-env.d.ts - import all types used in Next.js (let Next.js support *.module.css without config under typescript). 
+* .eslintrc - control quality of source code
