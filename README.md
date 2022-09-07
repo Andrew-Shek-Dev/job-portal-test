@@ -116,6 +116,25 @@ export class AppController {
 }
 ```
 
+### Add next.config.js manually
+One of purposes is creating .env variables.
+```js
+module.exports = {
+    env:{
+        BACKEND_URL:'http:///localhost:3000'
+    }
+}
+```
+
+How to use .env variables? Please see this example:
+```tsx
+function Home() {
+  return <h1>Backend URL: {process.env.BACKEND_URL}</h1>;
+}
+
+export default Home;
+```
+
 ### Setup AWS Amplify
 Reference: https://docs.amplify.aws/guides/hosting/nextjs/q/platform/js/#adding-amplify-hosting-1
 ```bash
