@@ -152,3 +152,104 @@ export default Post;
 
 解決方法：做if condition checking
 ```
+
+### 使用Routes：Link Component
+```tsx
+import Link from 'next/link';
+
+const link = () => {
+  return (
+    <ul>
+        <li>
+            <Link href="/">
+                <a>Switch to pages/index.tsx</a>
+            </Link>
+        </li>
+        <li>
+            <Link href="/csr">
+            <a>Switch to pages/csr.tsx</a>
+            </Link>
+        </li>
+        <li>
+            <Link href="/ssr">
+            <a>Switch to pages/ssr.tsx</a>
+            </Link>
+        </li>
+        <li>
+            <Link href="/ssg">
+            <a>Switch to pages/ssg.tsx</a>
+            </Link>
+        </li>
+        <li>
+            <Link href={`/post/${"1"}`}>
+            <a>Switch to pages/post/1</a>
+            </Link>
+        </li>
+        <li>
+            <Link
+              href={{
+                pathname:"/post/[postId]",
+                query:{postId:1234}
+              }}
+            >Dynamic Link</Link>
+        </li>
+    </ul>
+  )
+}
+
+export default link
+```
+
+To use the link under a component:
+```tsx
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+
+const post = () => {
+    const router = useRouter();
+    const {postId} = router.query;
+    const posts = [{id:1},{id:2},{id:3}]
+  return (
+    // <div>Post Id : {postId}</div>
+    <ul>
+        {posts.map(postItem=>(<li key={postItem.id}>
+            <Link href={`/post/${postItem.id}`}>
+                <a>Post Id: {postItem.id}</a>
+                {/*OR {`Post Id: ${postItem.id}`} */}
+            </Link>
+        </li>))}
+    </ul>
+  )
+}
+
+export default post;
+```
+
+### Bonus: Imperatively routing
+To delay the routing because of extra processing required such as google analytics, following code can be done:
+
+```tsx
+import React from 'react'
+import { useRouter } from 'next/router'
+
+const ImperativelyRouting = () => {
+    const posts = [{id:1},{id:2},{id:3}];
+    const router = useRouter();
+  return (
+    <ul>
+        {posts.map(p=>(<li key={p.id}>
+            <button onClick={async()=>{
+                //Doing some await task
+                setTimeout(()=>{
+                    router.push(`/post/${p.id}`)
+                },2000);
+            }}>
+                <a>Post Id:{p.id}</a>
+            </button>
+        </li>))}
+    </ul>
+  )
+}
+
+export default ImperativelyRouting
+```

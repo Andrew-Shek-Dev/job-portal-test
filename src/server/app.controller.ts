@@ -32,4 +32,22 @@ export class AppController {
   ssg(){
     return {}
   }
+
+  @Get("/link")
+  @Render('link')
+  link(){
+    return {}
+  }
+
+  @Get('/post/:postId')
+  @Render('post/[postId]')
+  post(){
+    return {}
+  }
+
+  @Get('/ImperativelyRouting')
+  @Render('ImperativelyRouting')
+  imperativelyRouting(){
+    return {}
+  }
 }
