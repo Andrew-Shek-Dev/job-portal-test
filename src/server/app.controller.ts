@@ -11,7 +11,7 @@ export class AppController {
   // }
   @Get('/')
   @Render('index')
-  home() {
+  index() {
     return {};
   }
 
@@ -48,6 +48,18 @@ export class AppController {
   @Get('/ImperativelyRouting')
   @Render('ImperativelyRouting')
   imperativelyRouting(){
+    return {}
+  }
+
+  @Get('/ShallowRouting')
+  @Render('ShallowRouting')
+  shallowRouting(){
+    return {}
+  }
+
+  @Get('/home')
+  @Render('home')
+  home(){
     return {}
   }
 }

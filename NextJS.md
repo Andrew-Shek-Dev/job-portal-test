@@ -253,3 +253,92 @@ const ImperativelyRouting = () => {
 
 export default ImperativelyRouting
 ```
+
+### Bonus: Shallow Routing
+Shallow routing 是一種用於同一個 page 的路由，你能夠改變 url 上的 query string，但是不執行 getServerSideProps 、 getStaticProps 與 getInitialProps 裡面的程式，此外還會保留 page 中的狀態。
+
+Note:
+只能在同一個 url 上切換!
+
+Example:
+```tsx
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router';
+
+const ShallowRouting = () => {
+    const router = useRouter();
+    const [counter,setCounter] = useState<number[]>([]);
+
+    useEffect(()=>{
+        if(router.query.counter){
+            setCounter(previous=>[...previous,parseInt(router.query.counter as string)]);
+        }
+    },[router.query.counter]);
+  return (
+    <>
+    <ul>
+        {counter.map(c=>(<li key={c}>{c}</li>))}
+    </ul>
+    <button onClick={()=>{
+        router.push(`/ShallowRouting?counter=${Math.floor(Math.random()*100)}`,undefined,{shallow:true});
+    }}>Add Counter</button>
+    </>
+  )
+}
+
+export default ShallowRouting
+```
+
+## Next.js與CSS(Styled Components)
+### Installation
+```
+yarn add styled-components
+yarn add -D @types/styled-components
+```
+
+### Apply on Component
+```tsx
+import styled from 'styled-components'; //<--
+import { GetServerSideProps } from 'next';//<--error because of it
+
+const Container = styled.div`
+    text-align:center
+`//<--
+
+const home = () => {
+  return (
+    <Container>home</Container> {/*//<--*/}
+  )
+}
+
+export default home
+
+export const getServerProps:GetServerSideProps = async()=>{
+    return {
+        props:{}
+    }
+}//<--error because of it
+```
+
+The error will be shown below because of inconsistences `className` of server side(SSR and SSG) and client side(React).
+
+```json
+next-dev.js?3515:20 Warning: Prop `className` did not match. Server: "sc-jSMfEi eEVBBD" Client: "sc-bczRLJ cPhGO"
+    at div
+    at O (webpack-internal:///./node_modules/styled-components/dist/styled-components.browser.esm.js:31:19811)
+    at home
+    at App (webpack-internal:///./node_modules/next/dist/pages/_app.js:64:9)
+    at ErrorBoundary (webpack-internal:///./node_modules/next/dist/compiled/@next/react-dev-overlay/dist/client.js:8:20740)
+    at ReactDevOverlay (webpack-internal:///./node_modules/next/dist/compiled/@next/react-dev-overlay/dist/client.js:8:23632)
+    at Container (webpack-internal:///./node_modules/next/dist/client/index.js:71:9)
+    at AppContainer (webpack-internal:///./node_modules/next/dist/client/index.js:592:26)
+    at Root (webpack-internal:///./node_modules/next/dist/client/index.js:703:27) 
+```
+
+The error can be resolved following:
+```bash
+yarn add -D babel-plugin-styled-components
+```
+
+## Optimized Image in WEBP format
+ 
