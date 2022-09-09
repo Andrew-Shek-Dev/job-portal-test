@@ -341,4 +341,54 @@ yarn add -D babel-plugin-styled-components
 ```
 
 ## Optimized Image in WEBP format
- 
+First, next.config.js is modified as following:
+```json
+module.exports = {
+    //...,
+    images:{
+        domains:[<image url>]
+    }
+}
+```
+
+Second, avoid reflowing image ,the css file should be added as following:
+```ts
+export const ImageWrapper = styled.div`
+  width: 120px;
+  height: 167px;
+  position: relative;
+`
+```
+
+Third, using Image Component in "next/image" as following:
+```tsx
+import { GetServerSideProps } from 'next';
+import {Container,ImageWrapper} from '../styles/home.style';
+import Image from 'next/image';
+
+const home = () => {
+  return (
+    <Container>
+      <ImageWrapper>
+       <Link href={`/product/${id}`} passHref>
+        <Image 
+        layout="fill" 
+        objectFit="cover"
+        src="https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"/>
+      </ImageWrapper>
+      
+      <Link href={`/post/${1}`}>
+        
+      </Link>
+    </Container>
+  )
+}
+
+export default home
+
+export const getServerProps:GetServerSideProps = async()=>{
+    return {
+        props:{}
+    }
+}
+```
