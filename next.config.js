@@ -4,5 +4,8 @@ module.exports = {
     },
     images:{
         domains:['fakestoreapi.com']
+    },
+    compiler: {
+        styledComponents: true,
     }
 }

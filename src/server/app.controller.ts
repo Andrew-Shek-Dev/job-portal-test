@@ -58,8 +58,8 @@ export class AppController {
   }
 
   @Get('/home')
-  @Render('home')
-  home(){
+  @Render('Home')
+  Home(){
     return {}
   }
 }

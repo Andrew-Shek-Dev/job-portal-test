@@ -59,7 +59,7 @@ SSG 意味著所有的內容都在 bulid 的時候都打包進入檔案中，所
 ## Concept Section : Factors on selection of CSR,SSR and SSG
 * SEO (CSR 實際上可以參與 SEO，但是不利於內容變動快速的網站)
 * 更快地載入頁面內容 ?
-    1. SSG < SSR < CSR
+    1. Speed : SSG < SSR < CSR
     2. client-side hardware and software performance
     3. SSG vs SSR => 內容是靜態?變動很頻繁?
     4. 頁面中的有些內容其實不必參與 SEO 的過程，SSR 只需把「對使用者有價值的資料」渲染完畢，把剩下的部分交由 CSR 處理，使用者可以更快地看到內容, 有利於「First Contentful Paint」的SEO評分。
@@ -390,5 +390,64 @@ export const getServerProps:GetServerSideProps = async()=>{
     return {
         props:{}
     }
+}
+```
+
+Oops! You will find the following error and the image cannot be resized when the page is updated.
+```json
+warn  - Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/basic-features/fast-refresh#how-it-works
+Error: Aborted because ./src/pages/Home.tsx is not accepted
+Update propagation: ./src/pages/Home.tsx -> ./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?absolutePagePath=%2FUsers%2Fandrew.tecky%2FDocuments%2FVSCode%2Faws-nestjs-nextjs-job-portal%2Fsrc%2Fpages%2FHome.tsx&page=%2FHome!
+    at applyHandler (http://localhost:3000/_next/static/chunks/webpack.js?ts=1662950425046:881:31)
+    at http://localhost:3000/_next/static/chunks/webpack.js?ts=1662950425046:564:21
+    at Array.map (<anonymous>)
+``` 
+
+This is because CSS updating fail on server side(styled-component), that is make sense. Next.js has already ported the styled-component feature now, so we can resolve it by adding following field under next.config.js.
+
+```json
+module.exports = {
+    env:{
+        BACKEND_URL:'http:///localhost:3000'
+    },
+    images:{
+        domains:['fakestoreapi.com']
+    },
+    compiler: {
+        styledComponents: true, //<-this one
+    }
+}
+```
+
+If you use older version of Next.js, you would add the _document.tsx under `pages` folder and add following code which generate the CSS on server side.
+```ts
+import Document from 'next/document'
+import { ServerStyleSheet } from 'styled-components'
+
+export default class MyDocument extends Document {
+  static async getInitialProps (ctx) {
+    const sheet = new ServerStyleSheet()
+    const originalRenderPage = ctx.renderPage
+
+    try {
+      ctx.renderPage = () =>
+        originalRenderPage({
+          enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
+        })
+
+      const initialProps = await Document.getInitialProps(ctx)
+      return {
+        ...initialProps,
+        styles: (
+          <>
+            {initialProps.styles}
+            {sheet.getStyleElement()}
+          </>
+        )
+      }
+    } finally {
+      sheet.seal()
+    }
+  }
 }
 ```
