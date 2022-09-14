@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { getProductById } from 'src/shared/fake-data';
+import { BackLink, PageTitle, ProductContainer } from './[postId].style';
 
 const post = () => {
   //   const router = useRouter();
@@ -23,6 +25,16 @@ const post = () => {
   if (!postId) return <></>;
 
   const product = getProductById(postId as string);
+
+  return ( <>
+    <PageTitle>商品詳細頁面</PageTitle>
+    <BackLink>
+      <Link href="/products">回產品列表</Link>
+    </BackLink>
+    <ProductContainer>
+      {JSON.stringify(product)}
+    </ProductContainer>
+  </>)
 }
 
 export default post;
