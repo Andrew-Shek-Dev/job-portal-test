@@ -29,6 +29,12 @@ const Home = () => {
 
   const handleSortingDirectionChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //setDirection(e.target.value as Direction);
+    /*
+    Shallow Routing:
+    * 用於同一個 page 的路由 - 原理：改變 url 上的 query string
+    * 不執行 getServerSideProps，getStaticProps 與 getInitialProps下，
+    * 會保留 page 中的狀態
+    */
     const dir = e.target.value;
     router.push(`${router.pathname}?direction=${dir}`,undefined,{shallow:true});
   };
