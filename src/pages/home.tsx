@@ -64,7 +64,14 @@ const Home = () => {
 
 export default Home
 
-export const getServerProps:GetServerSideProps = async()=>{
+/*
+issue: Why the server side props doesn't called because wrong
+spelling of function name such as getServerProps(x), getServerSideProps(✔️)
+
+Reference : https://stackoverflow.com/questions/73651855/getserversideprops-not-getting-called-for-nested-page-in-next-with-typescript
+*/
+export const getServerSideProps:GetServerSideProps = async()=>{
+  console.log("Hi")
   try{
     return {
         props:{}
