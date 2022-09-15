@@ -30,7 +30,7 @@ const Home = () => {
   const handleSortingDirectionChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //setDirection(e.target.value as Direction);
     /*
-    Shallow Routing:
+    Shallow Routing (CSR):
     * 用於同一個 page 的路由 - 原理：改變 url 上的 query string
     * 不執行 getServerSideProps，getStaticProps 與 getInitialProps下，
     * 會保留 page 中的狀態
@@ -40,6 +40,7 @@ const Home = () => {
   };
 
   useEffect(() => {
+    console.log("rendering...")
     if (router.query.direction) {
       setDirection(router.query.direction as Direction);
     }

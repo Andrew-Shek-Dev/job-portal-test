@@ -46,6 +46,7 @@ export interface Product {
   }
   
   export function sortByPrice(direction: Direction) {
+    console.log("[Check] sortByPrice called.")
     return FAKE_PRODUCT_DATA.sort((a, b) => {
       if (direction === "ASC") {
         return a.price - b.price;
