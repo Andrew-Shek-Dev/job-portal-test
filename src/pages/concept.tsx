@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
 
 interface ConceptProps {
