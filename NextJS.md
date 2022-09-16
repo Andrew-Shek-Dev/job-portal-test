@@ -388,7 +388,7 @@ const home = () => {
 
 export default home
 
-export const getServerProps:GetServerSideProps = async()=>{
+export const getServerSideProps:GetServerSideProps = async()=>{
     return {
         props:{}
     }
@@ -453,3 +453,30 @@ export default class MyDocument extends Document {
   }
 }
 ```
+
+When building the apps will show following error:
+```
+Error: Build optimization failed: found page without a React Component as default export in 
+<path>
+```
+
+Please move the *.style.ts outside the ./src/pages folder
+
+Reference:
+https://stackoverflow.com/questions/65598753/cant-build-react-next-project-found-page-without-a-react-component-as-default/65598867
+
+https://dev.to/daaahailey/errors-i-dealt-with-in-nextjs-styled-components-pages-types-1jc6
+
+
+
+
+## Common Issue List
+* Issue#1 : Why the server side props doesn't called 
+Cause : wrong spelling of function name such as getServerProps(x), getServerSideProps(✔️)
+
+Reference : https://stackoverflow.com/questions/73651855/getserversideprops-not-getting-called-for-nested-page-in-next-with-typescript
+
+
+## References
+* https://ithelp.ithome.com.tw/users/20110504/ironman/4269
+* https://medium.com/starbugs/%E5%88%9D%E6%8E%A2-server-side-rendering-%E8%88%87-next-js-%E6%8E%A8%E5%9D%91%E8%A8%88%E7%95%AB-d7a9fb48a964
