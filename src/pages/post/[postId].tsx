@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { getProductById } from 'src/shared/fake-data';
+import { PageTitle,BackLink,ProductContainer } from './[postId].style';
 
 const post = () => {
   //   const router = useRouter();
@@ -22,7 +24,19 @@ const post = () => {
 
   if (!postId) return <></>;
 
+  //NOTE: Why don't use useEffect here?
+  //Answer: We use SSR now! Not CSR!
   const product = getProductById(postId as string);
+
+  return (<>
+  <PageTitle>Product Details</PageTitle>
+  <BackLink>
+    <Link href="/home">Back</Link>
+  </BackLink>
+  <ProductContainer>
+    {JSON.stringify(product)}
+  </ProductContainer>
+  </>)
 }
 
 export default post;

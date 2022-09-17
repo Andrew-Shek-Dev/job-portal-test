@@ -8,6 +8,11 @@ yarn add styled-components
 yarn add -D @types/styled-components
 ```
 
+VSCode Extension
+```
+https://marketplace.visualstudio.com/items?itemName=diegolincoln.vscode-styled-components
+```
+
 ## How to use in component?
 Basic case,
 ```tsx

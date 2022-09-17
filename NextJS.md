@@ -419,7 +419,7 @@ module.exports = {
 }
 ```
 
-If you use older version of Next.js, you would add the _document.tsx under `pages` folder and add following code which generate the CSS on server side.
+If you use older version of Next.js, you would add the `_document.tsx` under `pages` folder and add following code which generate the CSS on server side.
 ```ts
 import Document from 'next/document'
 import { ServerStyleSheet } from 'styled-components'
