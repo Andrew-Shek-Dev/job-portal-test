@@ -1,36 +1,39 @@
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
 
 interface ConceptProps {
   data: number[];
 }
 
-const concept = ({ data }: ConceptProps) => {
-  const [_data, setData] = useState(null)
-    useEffect(() => {
-      if (data) {
-        setData(data)
-      } else {
-        // fetch client side and setData
-      }
-    });
-    return (
-      <>
-        {_data === null && <>Loading...</>}
-        {_data && <>{_data}</>}
-      </>
-    );
+//Second Step : HTML Page Ready and download the js file
+const Concept = ({ data }: ConceptProps) => {
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(()=>{
+    //Third Step : Reload the page on Client Side after data fetching
+    setTimeout(()=>{
+      setLoading(false);
+    },10000)
+  },[loading]);
+  
+  //Server Side Version First
+  if (loading){
+    return <>{data}</>
+  }
+
+  return <>
+    <div>{data}</div>
+    <div>Client Side Rendering Time : {Date.now()}</div>
+  </>
 };
 
-export default concept;
+export default Concept;
 
-const timeout = ()=>new Promise((resolve) => { setTimeout(() => { resolve([4,5,6]); }, 10000); })
-
+//First Step : Create the page first on Server Side
 export const getServerSideProps: GetServerSideProps = async () => {
-  const data = await timeout();
   return {
     props: {
-      data
+      data:`Server Side Rendering time ${Date.now()}`
     },
   };
 };
