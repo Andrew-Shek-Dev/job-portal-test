@@ -65,6 +65,8 @@ SSG 意味著所有的內容都在 bulid 的時候都打包進入檔案中，所
     4. 頁面中的有些內容其實不必參與 SEO 的過程，SSR 只需把「對使用者有價值的資料」渲染完畢，把剩下的部分交由 CSR 處理，使用者可以更快地看到內容, 有利於「First Contentful Paint」的SEO評分。
 
 ## Next.js與CSR,SSR and SSG
+* getInitialProps : 主要功能為在載入頁面之前，異步的去抓取需要的資料，並將資料變為該 Page Component 的 props，它的執行順序會在所有 react component lifecycle 之前。初次載入頁面的時候 getInitialProps 會在 server side 執行，當使用 Next/Link | Next/Router 進行跳轉時，它則會在 client side 執行，而如果跳轉頁面不是使用上面的方式，getInitialProps 都是會在 server-side 執行喔！如果是 CSR 的 React 架構，往往是在 useEffect 去執行 API call，但在 Next.js 架構中，許多 API call 會被拉到 getInitialProps 執行。
+
 * getStaticProps (SSG)： 在 build 的時候抓取資料
 * getStaticPaths (SSG)： dynamic routes?
 * getServerSideProps (SSR)：在使用者進入網頁時，每一次發送請求伺服器都會抓取資料
@@ -386,7 +388,7 @@ const home = () => {
 
 export default home
 
-export const getServerProps:GetServerSideProps = async()=>{
+export const getServerSideProps:GetServerSideProps = async()=>{
     return {
         props:{}
     }
@@ -451,3 +453,30 @@ export default class MyDocument extends Document {
   }
 }
 ```
+
+When building the apps will show following error:
+```
+Error: Build optimization failed: found page without a React Component as default export in 
+<path>
+```
+
+Please move the *.style.ts outside the ./src/pages folder
+
+Reference:
+https://stackoverflow.com/questions/65598753/cant-build-react-next-project-found-page-without-a-react-component-as-default/65598867
+
+https://dev.to/daaahailey/errors-i-dealt-with-in-nextjs-styled-components-pages-types-1jc6
+
+
+
+
+## Common Issue List
+* Issue#1 : Why the server side props doesn't called 
+Cause : wrong spelling of function name such as getServerProps(x), getServerSideProps(✔️)
+
+Reference : https://stackoverflow.com/questions/73651855/getserversideprops-not-getting-called-for-nested-page-in-next-with-typescript
+
+
+## References
+* https://ithelp.ithome.com.tw/users/20110504/ironman/4269
+* https://medium.com/starbugs/%E5%88%9D%E6%8E%A2-server-side-rendering-%E8%88%87-next-js-%E6%8E%A8%E5%9D%91%E8%A8%88%E7%95%AB-d7a9fb48a964

@@ -17,49 +17,55 @@ export class AppController {
 
   @Get('/csr')
   @Render('csr')
-  csr(){
-    return {}
+  csr() {
+    return {};
   }
 
   @Get('/ssr')
   @Render('ssr')
-  ssr(){
-    return {}
+  ssr() {
+    return {};
   }
 
   @Get('/ssg')
   @Render('ssg')
-  ssg(){
-    return {}
+  ssg() {
+    return {};
   }
 
-  @Get("/link")
+  @Get('/link')
   @Render('link')
-  link(){
-    return {}
+  link() {
+    return {};
   }
 
   @Get('/post/:postId')
   @Render('post/[postId]')
-  post(){
-    return {}
+  post() {
+    return {};
   }
 
   @Get('/ImperativelyRouting')
   @Render('ImperativelyRouting')
-  imperativelyRouting(){
-    return {}
+  imperativelyRouting() {
+    return {};
   }
 
   @Get('/ShallowRouting')
   @Render('ShallowRouting')
-  shallowRouting(){
-    return {}
+  shallowRouting() {
+    return {};
+  }
+
+  @Get('/concept')
+  @Render('concept')
+  Concept() {
+    return {};
   }
 
   @Get('/home')
   @Render('Home')
-  Home(){
-    return {}
+  Home() {
+    return {};
   }
 }

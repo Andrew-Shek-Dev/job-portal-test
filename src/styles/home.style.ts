@@ -1,14 +1,14 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 export const Container = styled.div`
-    text-align:center
-`
+  text-align: center;
+`;
 
 export const ImageWrapper = styled.div`
   width: 120px;
   height: 167px;
   position: relative;
-`
+`;
 
 export const ProductTitle = styled.a`
   color: #333;
@@ -17,4 +17,4 @@ export const ProductTitle = styled.a`
   &:hover {
     color: #783f8e;
   }
-`
+`;

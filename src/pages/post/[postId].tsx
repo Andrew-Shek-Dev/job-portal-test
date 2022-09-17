@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { getProductById } from 'src/shared/fake-data';
-import { PageTitle,BackLink,ProductContainer } from './[postId].style';
+import {
+  BackLink,
+  PageTitle,
+  ProductContainer,
+} from '../../styles/[postId].style';
 
 const post = () => {
   //   const router = useRouter();
@@ -20,7 +24,7 @@ const post = () => {
   // )
 
   const router = useRouter();
-  const {postId} = router.query;
+  const { postId } = router.query;
 
   if (!postId) return <></>;
 
@@ -28,15 +32,15 @@ const post = () => {
   //Answer: We use SSR now! Not CSR!
   const product = getProductById(postId as string);
 
-  return (<>
-  <PageTitle>Product Details</PageTitle>
-  <BackLink>
-    <Link href="/home">Back</Link>
-  </BackLink>
-  <ProductContainer>
-    {JSON.stringify(product)}
-  </ProductContainer>
-  </>)
-}
+  return (
+    <>
+      <PageTitle>商品詳細頁面</PageTitle>
+      <BackLink>
+        <Link href="/products">回產品列表</Link>
+      </BackLink>
+      <ProductContainer>{JSON.stringify(product)}</ProductContainer>
+    </>
+  );
+};
 
 export default post;
