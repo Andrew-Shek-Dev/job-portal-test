@@ -8,23 +8,25 @@ interface ConceptProps {
 //Second Step : HTML Page Ready and download the js file
 const Concept = ({ data }: ConceptProps) => {
   const [loading, setLoading] = useState(true);
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     //Third Step : Reload the page on Client Side after data fetching
-    setTimeout(()=>{
+    setTimeout(() => {
       setLoading(false);
-    },10000)
-  },[loading]);
-  
+    }, 10000);
+  }, [loading]);
+
   //Server Side Version First
-  if (loading){
-    return <>{data}</>
+  if (loading) {
+    return <>{data}</>;
   }
 
-  return <>
-    <div>{data}</div>
-    <div>Client Side Rendering Time : {Date.now()}</div>
-  </>
+  return (
+    <>
+      <div>{data}</div>
+      <div>Client Side Rendering Time : {Date.now()}</div>
+    </>
+  );
 };
 
 export default Concept;
@@ -33,7 +35,7 @@ export default Concept;
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
-      data:`Server Side Rendering time ${Date.now()}`
+      data: `Server Side Rendering time ${Date.now()}`,
     },
   };
 };

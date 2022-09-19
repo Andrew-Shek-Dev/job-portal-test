@@ -467,7 +467,71 @@ https://stackoverflow.com/questions/65598753/cant-build-react-next-project-found
 
 https://dev.to/daaahailey/errors-i-dealt-with-in-nextjs-styled-components-pages-types-1jc6
 
+## Next.js Main Feature: Pre-Rendering
+### Server Side Rendering
 
+### Static Side Generation
+To generating the HTML page at building stage, which include fetching data through API. The data will embedded in the built HTML which is sent to client directly when user request it.
+Next.js will through `getStaticProps` function complete the action above. Let me showing this in below example:
+
+```tsx
+import { GetStaticProps } from 'next';
+
+interface Post {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+  updateTime: string;
+}
+
+interface HomeProps {
+  post: Post;
+}
+
+const prerender_ssg = ({ post }: HomeProps) => {
+  return (
+    <div>
+      <h1>{post.title}</h1>
+      <p>{post.body}</p>
+      <p>Last Update Time:{post.updateTime}</p>
+    </div>
+  );
+};
+
+export default prerender_ssg;
+
+export const getStaticProps: GetStaticProps = async () => {
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+  const post: Post = await res.json();
+  return {
+    props: {
+      post: {
+        ...post,
+        updateTime: new Date().toLocaleString(),
+      },
+    },
+  };
+};
+
+```
+
+To show the effect, please build the source code first
+```
+npx next build
+```
+And run the build version by following command
+```
+npx next start
+```
+
+You will find that the `Last Update Time` will remain unchanged even refreshing page serval time. This show all you guy the data is embedded in the build stage, so it will not modified in refreshing page because client just get built version when refreshing page.
+
+### Dynamic Routes - GetStaticPaths
+
+```
+
+```
 
 
 ## Common Issue List

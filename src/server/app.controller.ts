@@ -68,4 +68,10 @@ export class AppController {
   Home() {
     return {};
   }
+
+  @Get('pp_ssg')
+  @Render('prerender_ssg')
+  pp_ssg() {
+    return {};
+  }
 }
