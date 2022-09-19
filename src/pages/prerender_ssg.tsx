@@ -1,4 +1,5 @@
-import { GetStaticProps, GetStaticPaths } from 'next';
+import { GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
 
 interface Post {
   userId: number;
@@ -13,6 +14,12 @@ interface HomeProps {
 }
 
 const prerender_ssg = ({ post }: HomeProps) => {
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return <>Loading...</>;
+  }
+
   return (
     <div>
       <h1>{post.title}</h1>
@@ -24,9 +31,8 @@ const prerender_ssg = ({ post }: HomeProps) => {
 
 export default prerender_ssg;
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { id } = params;
-  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+export const getStaticProps: GetStaticProps = async () => {
+  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/1`);
   const post: Post = await res.json();
   return {
     props: {
@@ -35,15 +41,5 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         updateTime: new Date().toLocaleString(),
       },
     },
-  };
-};
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [{ params: { id: 1 } }, { params: { id: 2 } }],
-    // { params: { year: '2021', month: '7', day: '24' } }, nested routes
-    // { params: { date: ['2021', '7', '24'] } }, catch all routes
-    // optional catch all rotues ??
-    fallback: true,
   };
 };
