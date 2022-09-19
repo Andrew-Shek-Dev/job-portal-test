@@ -480,3 +480,5 @@ Reference : https://stackoverflow.com/questions/73651855/getserversideprops-not-
 ## References
 * https://ithelp.ithome.com.tw/users/20110504/ironman/4269
 * https://medium.com/starbugs/%E5%88%9D%E6%8E%A2-server-side-rendering-%E8%88%87-next-js-%E6%8E%A8%E5%9D%91%E8%A8%88%E7%95%AB-d7a9fb48a964
+* https://blog.logrocket.com/create-react-app-vs-next-js-performance-differences/
+* https://theodorusclarence.com/blog/nextjs-fetch-method
