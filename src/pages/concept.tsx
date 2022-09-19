@@ -13,7 +13,7 @@ const Concept = ({ data }: ConceptProps) => {
     //Third Step : Reload the page on Client Side after data fetching
     setTimeout(() => {
       setLoading(false);
-    }, 20000);
+    }, 10000);
   }, [loading]);
 
   //Server Side Version First
