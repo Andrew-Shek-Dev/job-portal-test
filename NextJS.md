@@ -623,7 +623,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 Wait! What is the purpose of `fallback`?
 * if `false`: go to 404 page - suitable static content web site
-* if `true`: if the page is not found, the page will be generated immediately before return it. In the meantime, `router.isFallback` is used showing progress. Otherwise, the built html will be returned.
+* if `true`: if the page is not found, the page will be generated immediately before return it. In the meantime, `router.isFallback` is used showing progress. Otherwise, the built html will be returned. (Try find the html under `.next/server/pages/`)
 * if `"blocking"`,  if the page is not found, the page will be generated immediately before return it.In the meantime, but NO `router.isFallback`. Otherwise, the built html will be returned.
 
 ** There are 3 types of Dynamic Routes:
