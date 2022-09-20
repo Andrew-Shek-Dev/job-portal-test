@@ -528,11 +528,115 @@ npx next start
 You will find that the `Last Update Time` will remain unchanged even refreshing page serval time. This show all you guy the data is embedded in the build stage, so it will not modified in refreshing page because client just get built version when refreshing page.
 
 ### Dynamic Routes - GetStaticPaths
+* What is Dynamic Routes?
+The dynamic route<sup>*</sup> is the route name(page name/url name) which depend on data in params/query in URL such as `/post/1` and `/post/2`, which are represented `/posts/[id].tsx` in Next.js project. In SSR case, these dynamic routes pages can be generated in runtime, but how about SSG case? Next.js cannot generate nearly infinite these dynamic routes pages because these dynamic routes can have infinite combination.
 
+* How to handle dynamic routes in SSG?
+Next.js can build(generate) HTML pages with routes in specific pattern(e.g.`/post/:id`) such as `/posts/1` and `/posts/2` which are specific in `GetStaticPaths` function.
+```tsx
+// /pages/posts/[id].tsx
+import { GetStaticProps, GetStaticPaths } from 'next';
+import { useRouter } from 'next/router';
+
+interface Post {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+  updateTime: string;
+}
+
+interface HomeProps {
+  post: Post;
+}
+
+const prerender_ssg = ({ post }: HomeProps) => {
+  const router = useRouter();
+  if (router.isFallback) {
+    return <>Loading...</>;
+  }
+  return (
+    <div>
+      <div>SSG and Dynamic Route Demo</div>
+      <h1>{post.title}</h1>
+      <p>{post.body}</p>
+      <p>Last Update Time:{post.updateTime}</p>
+    </div>
+  );
+};
+
+export default prerender_ssg;
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { id } = params;
+  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+  const post: Post = await res.json();
+  return {
+    props: {
+      post: {
+        ...post,
+        updateTime: new Date().toLocaleString(),
+      },
+    },
+  };
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [{ params: { id: '1' } }, { params: { id: '2' } }],
+    fallback: false
+  };
+};
 ```
 
+The following code will generate 2 pages `/pages/posts/1` and `/pages/posts/2`
+```tsx
+// /pages/[id].tsx
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [{ params: { id: '1' } }, { params: { id: '2' } }],
+    fallback: false
+  };
+};
 ```
 
+Next, `catch all routes` are applied in `GetStaticPaths`. The following code will generate a page `/pages/posts/Ann/2022/3`:
+```tsx
+// /pages/[...searchCriteria].tsx
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [{ params:{ author:'Ann', year: '2022', month: '3' } }],
+    fallback: false
+  };
+};
+```
+
+Final, `optional catch all routes`, the following code will generate a page `/pages/posts/`ONLY if the route `pages/posts/[[...date]].tsx` is used:
+```tsx
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [{ params:{ date:false } }],
+    fallback: false
+  };
+};
+```
+
+Wait! What is the purpose of `fallback`?
+* if `false`: go to 404 page - suitable static content web site
+* if `true`: if the page is not found, the page will be generated immediately before return it. In the meantime, `router.isFallback` is used showing progress. Otherwise, the built html will be returned.
+* if `"blocking"`,  if the page is not found, the page will be generated immediately before return it.In the meantime, but NO `router.isFallback`. Otherwise, the built html will be returned.
+
+** There are 3 types of Dynamic Routes:
+* Basic style`/pages/post/[idx].tsx`
+* Catch all routes `/pages/posts/[...date].tsx` match to `/posts/2022/11/12 OR /posts/ann/2022` 
+* Optional catch all routes `/pages/posts/[[...date]].tsx` match to `/posts OR /posts/2022/11/12`.
+
+* The precedence of routes (top priority on the top), if `/pages/posts/all` is requested,
+1. 1<sup>st</sup> priority, Static Route such as `/pages/posts/all`
+2. 2<sup>nd</sup> priority, Dynamic routes such as `/pages/posts/[author]`
+3. 3<sup>rd</sup> priority, Catch all routes such as `/pages/posts/[...searchCriteria]`
+
+Please find more details under official [documentation](https://nextjs.org/docs/routing/dynamic-routes).
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
