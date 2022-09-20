@@ -638,6 +638,9 @@ Wait! What is the purpose of `fallback`?
 
 Please find more details under official [documentation](https://nextjs.org/docs/routing/dynamic-routes).
 
+## Incremental Static Regeneration(ISR)
+
+
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
 Cause : wrong spelling of function name such as getServerProps(x), getServerSideProps(✔️)
