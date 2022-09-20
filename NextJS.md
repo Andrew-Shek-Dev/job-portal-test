@@ -639,7 +639,10 @@ Wait! What is the purpose of `fallback`?
 Please find more details under official [documentation](https://nextjs.org/docs/routing/dynamic-routes).
 
 ## Incremental Static Regeneration(ISR)
+The web site such as big e-commerce web site have many products,so the web site provide searching function and show details for each product in page. If the e-commerce web site have ten thousand product, so Next.js need generating ten thousand pages. This will spend too many time cost on building web site because of too many pages generating. Next.js provide building strategy, ISR, reducing the cost. ISR can let building page dynamically in runtime under SSG by following the strategies, `Builder Faster` and `Cache More`.
 
+`Builder Faster` will generate pages which more people access first at building stage, so that the build time can be reduced significantly.
+`Cache More` will generate all of pages first, so that th access time will be reduced.
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
