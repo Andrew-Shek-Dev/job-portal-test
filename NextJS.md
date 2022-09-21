@@ -645,7 +645,7 @@ The web site such as big e-commerce web site have many products,so the web site 
 
 `Higher Cache Hit Rate` will generate more pages in minimized build time as possible, so that more pages are cached before user's requesting.
 
-### revalidate@ISR
+### How to use ISR?
 To implement `Builder Faster` and `Higher Cache Hit Rate`, we need the help of `revalidate` and `fallback` under function `GetStaticPaths`. Please note that the HTML page will NOT be re-generated without `revalidate` in official documentation.
 
 ```tsx
@@ -662,13 +662,13 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         updateTime: new Date().toLocaleString(),
       },
     },
-    revalidate:60 //Control Factor#2: The page is re-built every 60 seconds
+    revalidate:60 //The page is re-built every 60 seconds
   };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
-    paths: [{ params: { id: '1' } }, { params: { id: '2' } }], //Control Factor#1
+    paths: [{ params: { id: '1' } }, { params: { id: '2' } }], //select strategy
     fallback: true, //If ISR, the fallback MUST be true/"blocking"
   };
 };
