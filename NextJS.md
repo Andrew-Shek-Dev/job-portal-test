@@ -639,14 +639,47 @@ Wait! What is the purpose of `fallback`?
 Please find more details under official [documentation](https://nextjs.org/docs/routing/dynamic-routes).
 
 ## Incremental Static Regeneration(ISR)
-The web site such as big e-commerce web site have many products,so the web site provide searching function and show details for each product in page. If the e-commerce web site have ten thousand product, so Next.js need generating ten thousand pages. This will spend too many time cost on building web site because of too many pages generating. Next.js provide building strategy, ISR, reducing the cost. ISR can let building page dynamically in runtime under SSG by following the strategies, `Builder Faster` and `Cache More`.
+The web site such as big e-commerce web site have many products,so the web site provide searching function and show details for each product in page. If the e-commerce web site have ten thousand product, so Next.js need generating ten thousand pages. This will spend too many time cost on building web site because of too many pages generating. Next.js provide building strategy, ISR, reducing the cost. ISR can let building page dynamically in RUNTIME under SSG by following the strategies, `Builder Faster` and `Higher Cache Hit Rate`.
 
-`Builder Faster` will generate pages which more people access first at building stage, so that the build time can be reduced significantly.
-`Cache More` will generate all of pages first, so that th access time will be reduced.
+`Builder Faster` will generate most popular pages first at building stage, so that the build time can be reduced significantly. Client request the page other than the popular one , then the page will be generated in cache at runtime. Otherwise, the page will be gotten from cache directly unless the data in specific page are modified.
+
+`Higher Cache Hit Rate` will generate more pages in minimized build time as possible, so that more pages are cached before user's requesting.
+
+### revalidate@ISR
+To implement `Builder Faster` and `Higher Cache Hit Rate`, we need the help of `revalidate` and `fallback` under function `GetStaticPaths`. Please note that the HTML page will NOT be re-generated without `revalidate` in official documentation.
+
+```tsx
+// /pages/[...id].tsx
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  console.log('Server re-generate page');
+  const { id } = params;
+  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+  const post: Post = await res.json();
+  return {
+    props: {
+      post: {
+        ...post,
+        updateTime: new Date().toLocaleString(),
+      },
+    },
+    revalidate:60 //Control Factor#2: The page is re-built every 60 seconds
+  };
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [{ params: { id: '1' } }, { params: { id: '2' } }], //Control Factor#1
+    fallback: true, //If ISR, the fallback MUST be true/"blocking"
+  };
+};
+```
+### fallback: true v.s. fallback: 'blocking'
+* 'blocking' ：官方推薦使用這個參數，原因雖然沒有說，但是在 Next.js 的 GitHub issue 中翻了一會兒，會發現 'blocking' 的好處是有利於 SEO，雖然對於會執行 JavaScript 的 Google 爬蟲沒有影響，但是像是 Facebook 或 Twitter 等不會執行 JavaScript 的爬蟲， 'blocking' 才能確保爬蟲拿到的資料是完整的。
+* true : 如上述，因為 true 會使爬蟲看到的是 fallback page，如果沒有執行 JavaScript，則無法拿到更新後的內容，如此對於 SEO 不利。但是，對於需要經過 authentication 的頁面或是後台頁面來說，也許 true 是一個好的選擇，因為不用在意 SEO，而且透過 web skeleton 可以讓使用者更快地看到網頁預載入的內容框，從另一個面向來看是可以優化 UX 的選擇。
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
-Cause : wrong spelling of function name such as getServerProps(x), getServerSideProps(✔️)
+Cause : wrong spelling of function name such as getServerProps(❌), getServerSideProps(✅)
 
 Reference : https://stackoverflow.com/questions/73651855/getserversideprops-not-getting-called-for-nested-page-in-next-with-typescript
 

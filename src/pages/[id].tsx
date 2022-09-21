@@ -31,6 +31,7 @@ const prerender_ssg = ({ post }: HomeProps) => {
 export default prerender_ssg;
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
+  console.log('Server re-generate page');
   const { id } = params;
   const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
   const post: Post = await res.json();
@@ -41,6 +42,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         updateTime: new Date().toLocaleString(),
       },
     },
+    revalidate: 60,
   };
 };
 
@@ -50,7 +52,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // { params: { year: '2021', month: '7', day: '24' } }, nested routes
     // { params: { date: ['2021', '7', '24'] } }, catch all routes
     // optional catch all rotues ??
-    fallback: 'blocking',
+    fallback: true,
     //if false: go to 404 page - suitable static content web site
     //if true: if not found, the page will be generated immediately before return it.In the meantime, router.isFallback is used showing progress. Otherwise, the built html will be returned.
     //if "blocking",  if not found, the page will be generated immediately before return it.In the meantime, but no router.isFallback. Otherwise, the built html will be returned.
