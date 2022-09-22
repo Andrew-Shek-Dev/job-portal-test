@@ -679,6 +679,16 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 [Reference](https://www.smashingmagazine.com/2021/04/incremental-static-regeneration-nextjs/)
 
+## Automatic Static Optimization
+`Automatic Static Optimization` is a feature of Next.js. It can analyze each page(component) and determine whether using SSG in it when building web site. The rule is that pages will be generated in build stage if `getServerSideProps` or `getInitialProps` are NOT defined in page(component).
+
+### Extra Info: Why Next.js don't recommend using `getInitialProps`?
+1. SSG is not supported if `getInitialProps` used, so the performance is affected. In fact, performance of SSG is better than that of SSR.
+2. Whole project cannot use `Automatic Static Optimization` if `getInitialProps` is used in `_app.tsx` which let all components will use SSR.
+3. Generated Javascript File's size in `getInitialProps` is bigger than that of `getServerSideProps`. `getInitialProps` will be executed in server-side and client-side, so the generated Javascript file contains both sides code.`getServerSideProps` will be executed in server-side only, so the generated Javascript file contains client-side code only. So, generated Javascript file under `getInitialProps` is larger than that under `getServerSideProps`. The details can read the [blog](https://arunoda.me/blog/ssr-and-server-only-modules).
+
+## CSR under Next.js - SWR
+
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
