@@ -689,6 +689,95 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 ## CSR under Next.js - SWR
 
+### Technical Forum
+
+
+### SSG Case : It is not suitable.
+Posts are updated/added frequently, so web site is not a static web sites.
+
+### SSR Case : Heavy Loading on Server - Loading speed is lower
+Let us try SSR version by using below example. Please find the CSS style file [here](./)
+```tsx
+// swr/postlist.tsx
+import { GetServerSideProps } from 'next';
+import {
+  PostBody,
+  PostContainer,
+  PostFooter,
+  PostTitle,
+} from '../../styles/postList.style';
+
+type Post = {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+};
+
+type Comment = {
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
+};
+
+type PostData = {
+  post: Post;
+  comments: Comment;
+};
+const posts: PostData[] = [];
+
+type PostsProps = {
+  posts: PostData[];
+};
+
+const PostList = ({ posts }: PostsProps) => {
+  return (
+    <div>
+      {posts.map(({ post, comments }) => (
+        <PostContainer>
+          <PostTitle>{post.title}</PostTitle>
+          <PostBody>{post.body}</PostBody>
+          <PostFooter>Post by {post.userId} ?? minutes ago</PostFooter>
+        </PostContainer>
+      ))}
+    </div>
+  );
+};
+
+export default PostList;
+
+const getData = async (url: string) => {
+  const res = await fetch(url);
+  const data = await res.json();
+  return data;
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const postsData = await getData('https://jsonplaceholder.typicode.com/posts');
+  const comments = await getData(
+    'https://jsonplaceholder.typicode.com/comments',
+  );
+
+  posts.push(
+    ...postsData.map((post: Post) => ({
+      post,
+      comments: comments.filter(
+        (comment: Comment) => comment.postId == post.id,
+      ),
+    })),
+  );
+
+  return {
+    props: {
+      posts,
+    }
+  };
+};
+
+```
+The black page will last longer. Under "Low Speed 3G"  in the browser inspect the lasted time is more obvious. To resolve the problem, we let server pre-render page with first post with comments only, and then remaining post and comments are rendered in client side (React).
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
