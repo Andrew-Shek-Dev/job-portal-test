@@ -42,6 +42,7 @@ const PostList = ({ posts }: PostsProps) => {
     fetch('https://jsonplaceholder.typicode.com/posts')
       .then((res) => res.json())
       .then((_posts: any) => {
+        setLoading(true);
         setCache(_posts);
         setPostsCache([...postsCache, { post: _posts[1], comments: [] }]);
       });
@@ -51,21 +52,21 @@ const PostList = ({ posts }: PostsProps) => {
     if (postsCache.length < cache.length) {
       setTimeout(() => {
         setPostsCache((previous) => [
-          ...previous,
           {
             post: cache[previous.length],
             comments: [],
           },
+          ...previous,
         ]);
       }, 2000);
     } else {
-      //setLoading(false);
+      setLoading(false);
     }
   }, [postsCache]);
 
   return (
     <div>
-      {loading && <PostContainer>Loading...</PostContainer>}
+      {loading ? <PostContainer>Loading...</PostContainer> : <></>}
       {postsCache.map(({ post, comments }) => (
         <PostContainer>
           <PostTitle>{post.title}</PostTitle>
