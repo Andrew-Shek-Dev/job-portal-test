@@ -37,16 +37,23 @@ const PostList = ({ posts }: PostsProps) => {
   const [postsCache, setPostsCache] = useState<PostData[]>([...posts]);
 
   useEffect(() => {
-    setLoading(true);
-    fetch('https://jsonplaceholder.typicode.com/posts')
-      .then((res) => res.json())
-      .then((_posts: any) => {
-        setPostsCache([
-          ...postsCache,
-          ..._posts.map((post) => ({ post, comments: [] })),
-        ]);
-        setLoading(false);
-      });
+    const cache = localStorage.getItem('posts');
+    if (!cache) {
+      setLoading(true);
+      fetch('https://jsonplaceholder.typicode.com/posts')
+        .then((res) => res.json())
+        .then((_posts: any) => {
+          const newPosts = [
+            ...postsCache,
+            ..._posts.map((post) => ({ post, comments: [] })),
+          ];
+          setPostsCache(newPosts);
+          localStorage.setItem('posts', JSON.stringify(newPosts));
+          setLoading(false);
+        });
+    } else {
+      setPostsCache(JSON.parse(localStorage.getItem('posts')));
+    }
   }, []);
 
   return (

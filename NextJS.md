@@ -726,7 +726,7 @@ Posts are updated/added frequently, so web site is not a static web sites.
 ### SSR Case : Heavy Loading on Server - Loading speed is lower
 Let us try SSR version by using below example. Please find the CSS style file [here](./)
 ```tsx
-// swr/postlist.tsx
+// swr/PostList.tsx
 import { GetServerSideProps } from 'next';
 import {
   PostBody,
@@ -806,6 +806,224 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
 ```
 The black page will last longer. Under "Low Speed 3G"  in the browser inspect the lasted time is more obvious. To resolve the problem, we let server pre-render page with first post with comments only, and then remaining post and comments are rendered in client side (React).
+
+### SSR + CSR case : Reducing Server Loading by changing loading data at client side
+To reduce the server loading, we switch the fetching data at client side. The example above is modified like this:
+```tsx
+// swr/PostListCSR.tsx
+import { GetServerSideProps } from 'next';
+import { useEffect, useState } from 'react';
+import {
+  PostBody,
+  PostContainer,
+  PostFooter,
+  PostTitle,
+} from '../../styles/postList.style';
+
+type Post = {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+};
+
+type Comment = {
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
+};
+
+type PostData = {
+  post: Post;
+  comments: Comment[];
+};
+const posts: PostData[] = [];
+
+type PostsProps = {
+  posts: PostData[];
+};
+
+const PostList = ({ posts }: PostsProps) => {
+  const [loading, setLoading] = useState(false);
+  const [postsCache, setPostsCache] = useState<PostData[]>([...posts]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('https://jsonplaceholder.typicode.com/posts')
+      .then((res) => res.json())
+      .then((_posts: any) => {
+        setPostsCache([
+          ...postsCache,
+          ..._posts.map((post) => ({ post, comments: [] })),
+        ]);
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <div>
+      {loading ? <PostContainer>Loading...</PostContainer> : <></>}
+      {postsCache.map(({ post, comments }) => (
+        <PostContainer>
+          <PostTitle>{post.title}</PostTitle>
+          <PostBody>{post.body}</PostBody>
+          <PostFooter>Posted by {post.userId} ?? minutes ago</PostFooter>
+          <div>comments</div>
+          <div>
+            {comments.map((comment) => (
+              <div>
+                [Posted by {comment.name}] {comment.body}
+              </div>
+            ))}
+          </div>
+        </PostContainer>
+      ))}
+    </div>
+  );
+};
+
+export default PostList;
+
+const getData = async (url: string) => {
+  const res = await fetch(url);
+  const data = await res.json();
+  return data;
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const post = await getData('https://jsonplaceholder.typicode.com/posts/1');
+  const comments = await getData(
+    'https://jsonplaceholder.typicode.com/post/1/comments',
+  );
+
+  posts.push({
+    post,
+    comments: comments.filter((comment: Comment) => comment.postId == post.id),
+  });
+
+  return {
+    props: {
+      posts,
+    },
+  };
+};
+
+```
+The blank page has been replaced by "loading" text and the pre-rendering page from server (SSR) under normal case and "Low Speed 3G" case. But the fetching data again every refreshing page even data remain unchanged, this waste the network bandwidth and also reduce client side performance. To resolve this issue, simplifying case ,we need create a cache.
+
+
+### SSR + CSR + Cache : Seem to be good. Anything Else?
+```tsx
+// swr/PostListCSRCache.tsx
+import { GetServerSideProps } from 'next';
+import { useEffect, useState } from 'react';
+import {
+  PostBody,
+  PostContainer,
+  PostFooter,
+  PostTitle,
+} from '../../styles/postList.style';
+
+type Post = {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+};
+
+type Comment = {
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
+};
+
+type PostData = {
+  post: Post;
+  comments: Comment[];
+};
+const posts: PostData[] = [];
+
+type PostsProps = {
+  posts: PostData[];
+};
+
+const PostList = ({ posts }: PostsProps) => {
+  const [loading, setLoading] = useState(false);
+  const [postsCache, setPostsCache] = useState<PostData[]>([...posts]);
+
+  useEffect(() => {
+    const cache = localStorage.getItem('posts');
+    if (!cache) {
+      setLoading(true);
+      fetch('https://jsonplaceholder.typicode.com/posts')
+        .then((res) => res.json())
+        .then((_posts: any) => {
+          const newPosts = [
+            ...postsCache,
+            ..._posts.map((post) => ({ post, comments: [] })),
+          ];
+          setPostsCache(newPosts);
+          localStorage.setItem('posts', JSON.stringify(newPosts));
+          setLoading(false);
+        });
+    } else {
+      setPostsCache(JSON.parse(localStorage.getItem('posts')));
+    }
+  }, []);
+
+  return (
+    <div>
+      {loading ? <PostContainer>Loading...</PostContainer> : <></>}
+      {postsCache.map(({ post, comments }) => (
+        <PostContainer>
+          <PostTitle>{post.title}</PostTitle>
+          <PostBody>{post.body}</PostBody>
+          <PostFooter>Posted by {post.userId} ?? minutes ago</PostFooter>
+          <div>comments</div>
+          <div>
+            {comments.map((comment) => (
+              <div>
+                [Posted by {comment.name}] {comment.body}
+              </div>
+            ))}
+          </div>
+        </PostContainer>
+      ))}
+    </div>
+  );
+};
+
+export default PostList;
+
+const getData = async (url: string) => {
+  const res = await fetch(url);
+  const data = await res.json();
+  return data;
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const post = await getData('https://jsonplaceholder.typicode.com/posts/1');
+  const comments = await getData(
+    'https://jsonplaceholder.typicode.com/post/1/comments',
+  );
+
+  posts.push({
+    post,
+    comments: comments.filter((comment: Comment) => comment.postId == post.id),
+  });
+
+  return {
+    props: {
+      posts,
+    },
+  };
+};
+
+```
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
