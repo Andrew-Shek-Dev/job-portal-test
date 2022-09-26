@@ -688,37 +688,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 3. Generated Javascript File's size in `getInitialProps` is bigger than that of `getServerSideProps`. `getInitialProps` will be executed in server-side and client-side, so the generated Javascript file contains both sides code.`getServerSideProps` will be executed in server-side only, so the generated Javascript file contains client-side code only. So, generated Javascript file under `getInitialProps` is larger than that under `getServerSideProps`. The details can read the [blog](https://arunoda.me/blog/ssr-and-server-only-modules).
 
 ## CSR under Next.js - Stale-While-Revalidate(SWR)
-In Official Next.js documentation, Next.js doesn't claim supporting CSR because it just send the javascript file to React Library and let it run the javascript. So, CSR is not a part of Next.js Framework actually. Let us demo the simplified scenario:
-
-* Demo : Fetching Data in SSR case, but the server is under heavy loading if data varying frequently.
-
-* Demo : Fetching Data in CSR case, keep the blank page until the data ready.
-
-* Demo : Prefetching Loading Page in SSR + Fetching Data in CSR, not bad, still loading.
-
-* Demo : Prefetching Loading Page in SSR + Fetching Data in CSR with Cache, better, but UI is not updated immediately if data is updated.
-
-Any More?
-* Error Retry：在数据加载出问题的时候，要进行有条件的重试（如仅 5xx 时重试，403、404 时放弃重试）
-* Preload：预加载数据，避免瀑布流请求
-* SSR、SSG：服务端获取的数据用来提前填充缓存、渲染页面、然后再在客户端刷新缓存
-* Pagination：大量数据、分页请求
-* Mutation：响应用户输入、将数据发送给服务端
-* Optimistic Mutation：用户提交输入时先更新本地 UI、形成「已经修改成功」的假象，同时异步将输入发送给服务端；如果出错，还需要回滚本地 UI
-* Middleware：日志、错误上报、Authentication
-* etc....
-
-OMG! Too many things needed handling. `SWR` has already handled all of these, so we use `SWR` instead of `useEffect` directly.
-
-### References
-* https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
-* https://javascript.plainenglish.io/why-you-should-use-useswr-instead-of-usestate-when-calling-apis-8b6de5dc18fc
-* https://17.reactjs.org/docs/concurrent-mode-suspense.html#approach-1-fetch-on-render-not-using-suspense
-* https://lo-victoria.com/a-look-at-react-hooks-useswr-for-data-fetching-in-react
-
-
-### Technical Forum
-
+In Official Next.js documentation, Next.js doesn't claim supporting CSR because it just send the javascript file to React Library and let it run the javascript. So, CSR is not a part of Next.js Framework actually. Let us demo the simplified scenario of Technical Forum:
 
 ### SSG Case : It is not suitable.
 Posts are updated/added frequently, so web site is not a static web sites.
@@ -1024,6 +994,34 @@ export const getServerSideProps: GetServerSideProps = async () => {
 };
 
 ```
+
+Anything Else ?
+* Error Retry：在数据加载出问题的时候，要进行有条件的重试（如仅 5xx 时重试，403、404 时放弃重试）
+* Preload：预加载数据，避免瀑布流请求
+* SSR、SSG：服务端获取的数据用来提前填充缓存、渲染页面、然后再在客户端刷新缓存
+* Pagination：大量数据、分页请求
+* Mutation：响应用户输入、将数据发送给服务端
+* Optimistic Mutation：用户提交输入时先更新本地 UI、形成「已经修改成功」的假象，同时异步将输入发送给服务端；如果出错，还需要回滚本地 UI
+* Middleware：日志、错误上报、Authentication
+* etc....
+
+OMG! Too many things needed handling. `SWR` has already handled all of these, so we use `SWR` instead of `useEffect` directly.
+
+`SWR`, full name is `stale-while-revalidate`. It handle caching data following HTTP standard. `SWR` will return the data in cache first. If the data(`stale`) in cache are expired, data will be fetched by calling API and update it in cache (`revalidate`).
+
+### Install SWR
+```
+yarn add swr
+```
+
+
+
+### References
+* https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
+* https://javascript.plainenglish.io/why-you-should-use-useswr-instead-of-usestate-when-calling-apis-8b6de5dc18fc
+* https://17.reactjs.org/docs/concurrent-mode-suspense.html#approach-1-fetch-on-render-not-using-suspense
+* https://lo-victoria.com/a-look-at-react-hooks-useswr-for-data-fetching-in-react
+
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 
