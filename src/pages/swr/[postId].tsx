@@ -1,6 +1,7 @@
 import { GetServerSideProps } from 'next';
-import { useState } from 'react';
-import useSWR from 'swr';
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import useSWR from 'swr/immutable';
 
 interface SWRPostProp {
   id: number;
@@ -9,9 +10,12 @@ interface SWRPostProp {
 
 //const fetcher = (url, id) => fetch(`${url}/${id}`).then((res) => res.json());
 const fetcher = (url, params) => {
-  console.log('fetching...');
+  console.log('[/id] fetching...');
   return fetch(
-    Object.keys(params).reduce((link, path) => `${link}/${params[path]}`, url),
+    Object.keys(params).reduce(
+      (link, path) => `${link}/${params[path]}`,
+      `https://jsonplaceholder.typicode.com${url}`,
+    ),
   ).then((res) => res.json());
 };
 
@@ -21,14 +25,8 @@ const SWRPost = ({ id, content }: SWRPostProp) => {
   //     fetcher,
   //   );
   const [counter, setCounter] = useState(0);
-  const { data, error } = useSWR(
-    [
-      'https://jsonplaceholder.typicode.com/posts',
-      //SWR deep compares data changes by default. If the data value isn’t changed, a re-render will not be triggered.
-      { id },
-    ],
-    fetcher,
-  );
+  const params = useMemo(() => ({ id }), [id]);
+  const { data, error } = useSWR(['/posts', params], fetcher);
 
   if (!data) return <div>{content}</div>;
   if (error) return <div>{error}</div>;
@@ -43,6 +41,9 @@ const SWRPost = ({ id, content }: SWRPostProp) => {
       >
         Count {counter}
       </button>
+      <Link href="/swr/PostListCSRswr">
+        <a>Back to Post List Page</a>
+      </Link>
     </div>
   );
 };

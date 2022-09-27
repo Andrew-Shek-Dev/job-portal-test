@@ -1,4 +1,5 @@
 import { GetServerSideProps } from 'next';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import {
@@ -33,7 +34,12 @@ type PostsProps = {
   posts: PostData[];
 };
 
-const fetcher = (url) => fetch(url).then((r) => r.json());
+const fetcher = (url) => {
+  console.log('[PostListCSRswr] fetching....');
+  return fetch(`https://jsonplaceholder.typicode.com${url}`).then((r) =>
+    r.json(),
+  );
+};
 const PostList = ({ posts }: PostsProps) => {
   const {
     data /* Return value of fetcher - data is undefined if data is not ready*/,
@@ -41,9 +47,9 @@ const PostList = ({ posts }: PostsProps) => {
   } = useSWR(
     /*key*/ () =>
       /*value/callback*/
-      posts.length == 1
-        ? 'https://jsonplaceholder.typicode.com/posts'
-        : null /*, or, undefined(throw error) - No Calling API - Lazy Loading, e.g., Read More Product*/,
+      //posts.length == 1
+      /*?*/ '/posts',
+    //: null /*, or, undefined(throw error) - No Calling API - Lazy Loading, e.g., Read More Product*/,
     /*fetch function,取得資料的函式, e.g., ()=>axios/fetch */ fetcher,
   );
   const [postsCache, setPostsCache] = useState<PostData[]>([...posts]);
@@ -76,6 +82,9 @@ const PostList = ({ posts }: PostsProps) => {
               </div>
             ))}
           </div>
+          <Link href={`/swr/${post.id}`}>
+            <a>Details</a>
+          </Link>
         </PostContainer>
       ))}
     </div>
