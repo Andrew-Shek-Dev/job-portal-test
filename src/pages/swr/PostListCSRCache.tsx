@@ -45,7 +45,7 @@ const PostList = ({ posts }: PostsProps) => {
         .then((_posts: any) => {
           const newPosts = [
             ...postsCache,
-            ..._posts.map((post) => ({ post, comments: [] })),
+            ..._posts.slice(1).map((post) => ({ post, comments: [] })),
           ];
           setPostsCache(newPosts);
           localStorage.setItem('posts', JSON.stringify(newPosts));

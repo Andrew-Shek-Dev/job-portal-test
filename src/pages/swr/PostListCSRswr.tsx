@@ -33,13 +33,34 @@ type PostsProps = {
   posts: PostData[];
 };
 
-const fetcher = url=>fetch(url).then(r=>r.json());
+const fetcher = (url) => fetch(url).then((r) => r.json());
 const PostList = ({ posts }: PostsProps) => {
-  const {data,error} = useSWR('https://jsonplaceholder.typicode.com/posts',fetcher);
+  const {
+    data /* Return value of fetcher - data is undefined if data is not ready*/,
+    error /* Error thrown from fetcher */,
+  } = useSWR(
+    /*key*/ () =>
+      /*value/callback*/
+      posts.length == 1
+        ? 'https://jsonplaceholder.typicode.com/posts'
+        : null /*, or, undefined(throw error) - No Calling API - Lazy Loading, e.g., Read More Product*/,
+    /*fetch function,取得資料的函式, e.g., ()=>axios/fetch */ fetcher,
+  );
+  const [postsCache, setPostsCache] = useState<PostData[]>([...posts]);
 
-  if (error) return <div>Fail to load</div>
-  if (!data) return <PostContainer>Loading...</PostContainer>
-  
+  useEffect(() => {
+    if (data) {
+      const newPosts = [
+        ...postsCache,
+        ...data.slice(1).map((post) => ({ post, comments: [] })),
+      ];
+      setPostsCache(newPosts);
+    }
+  }, [data]);
+
+  if (error) return <div>Fail to load</div>;
+  if (!data) return <PostContainer>Loading...</PostContainer>;
+
   return (
     <div>
       {postsCache.map(({ post, comments }) => (
