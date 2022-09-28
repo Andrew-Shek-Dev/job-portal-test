@@ -1079,6 +1079,9 @@ function App () {
 ```
 All SWR hooks will use the same fetcher provided to load JSON data, and refresh every 3 seconds by default.
 
+### Setup Individual SWR hooks Configuration
+
+
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
 * https://javascript.plainenglish.io/why-you-should-use-useswr-instead-of-usestate-when-calling-apis-8b6de5dc18fc
