@@ -1014,7 +1014,70 @@ OMG! Too many things needed handling. `SWR` has already handled all of these, so
 yarn add swr
 ```
 
+### Quick Start Example
+We will use `SWR` in custom React Hooks, so that the code is more declarative and reusable.
+```typescript
+import useSWR from 'swr';
 
+const fetcher = (url, params) => {
+  return fetch(`${url}/${params}`).then((res) => res.json());
+};
+
+export function useProduct(id: number | undefined) {
+  const { data, error } = useSWR(['https://jsonplaceholder.typicode.com/posts', id],fetcher);
+  return { data, error };
+}
+```
+
+Through the hooks, all of components can retrieve the data if need data under 1 requests to API only.The request is `de-duped`, `cached` and `shared` automatically.
+```
+
+```
+
+### API Options
+```typescript
+const { data, error, isValidating, mutate } = useSWR(key, fetcher, options)
+```
+
+* Parameters
+`key`: unique key each request(cache)
+`fetcher`: A Promise which fetching data and return it.
+`options`: To change cache behavior by providing different configuration.
+
+* Return Values
+`data`: return the fetched data
+`error`: return error if `fetcher` throw error. 
+`isValidating`: To indicate is whether a request/revalidation is in progress 
+`mutate`: It is function which update the cache directly and don't wait cache revalidation.
+
+`options` will be introduced in more details next section. 
+
+### Global Configuration
+To config `SWR` globally,for example, setup `fetcher` globally, we need the help of `SWRConfig` component.
+```tsx
+import useSWR, { SWRConfig } from 'swr'
+
+function ProductList () {
+  const { data: posts } = useSWR('https://jsonplaceholder.typicode.com/posts')
+  const { data: comments } = useSWR('https://jsonplaceholder.typicode.com/comments')
+
+  // ...
+}
+
+function App () {
+  return (
+    <SWRConfig 
+      value={{
+        refreshInterval: 3000, //<--refresh every 3 seconds
+        fetcher: (resource, init) => fetch(resource, init).then(res => res.json()) //<--shared fetcher
+      }}
+    >
+      <ProductList />
+    </SWRConfig>
+  )
+}
+```
+All SWR hooks will use the same fetcher provided to load JSON data, and refresh every 3 seconds by default.
 
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
