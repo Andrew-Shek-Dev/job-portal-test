@@ -1,7 +1,13 @@
 import { GetServerSideProps } from 'next';
+<<<<<<< HEAD
 import { useState } from 'react';
 import { useProduct } from 'src/shared/useProduct';
 //import useSWR from 'swr';
+=======
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import useSWR from 'swr/immutable';
+>>>>>>> 1f3bd4cbfbe1d546cda3b23b831c4c0c9e36ba12
 
 interface SWRPostProp {
   id: number;
@@ -9,12 +15,24 @@ interface SWRPostProp {
 }
 
 //const fetcher = (url, id) => fetch(`${url}/${id}`).then((res) => res.json());
+<<<<<<< HEAD
 // const fetcher = (url, params) => {
 //   console.log('fetching...');
 //   return fetch(
 //     Object.keys(params).reduce((link, path) => `${link}/${params[path]}`, url),
 //   ).then((res) => res.json());
 // };
+=======
+const fetcher = (url, params) => {
+  console.log('[/id] fetching...');
+  return fetch(
+    Object.keys(params).reduce(
+      (link, path) => `${link}/${params[path]}`,
+      `https://jsonplaceholder.typicode.com${url}`,
+    ),
+  ).then((res) => res.json());
+};
+>>>>>>> 1f3bd4cbfbe1d546cda3b23b831c4c0c9e36ba12
 
 const SWRPost = ({ id, content }: SWRPostProp) => {
   //   const { data, error } = useSWR(
@@ -22,6 +40,7 @@ const SWRPost = ({ id, content }: SWRPostProp) => {
   //     fetcher,
   //   );
   const [counter, setCounter] = useState(0);
+<<<<<<< HEAD
   // const {  data, error/*, isValidating, mutate*/  } = useSWR(
   //   [
   //     'https://jsonplaceholder.typicode.com/posts',
@@ -32,6 +51,10 @@ const SWRPost = ({ id, content }: SWRPostProp) => {
   //   //{ initialData }
   // );
   const { data, error } = useProduct(1);
+=======
+  const params = useMemo(() => ({ id }), [id]);
+  const { data, error } = useSWR(['/posts', params], fetcher);
+>>>>>>> 1f3bd4cbfbe1d546cda3b23b831c4c0c9e36ba12
 
   if (!data) return <div>{content}</div>;
   if (error) return <div>{error}</div>;
@@ -49,6 +72,9 @@ const SWRPost = ({ id, content }: SWRPostProp) => {
       >
         Count {counter}
       </button>
+      <Link href="/swr/PostListCSRswr">
+        <a>Back to Post List Page</a>
+      </Link>
     </div>
   );
 };
