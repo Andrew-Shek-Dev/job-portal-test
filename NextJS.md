@@ -1005,9 +1005,9 @@ Anything Else ?
 * Middleware：日志、错误上报、Authentication
 * etc....
 
-OMG! Too many things needed handling. `SWR` has already handled all of these, so we use `SWR` instead of `useEffect` directly.
+OMG! Too many things needed handling. The good new is that `SWR` has already handled all of these, so we use `SWR` instead of `useEffect` directly.
 
-`SWR`, full name is `stale-while-revalidate`. It handle caching data following HTTP standard. `SWR` will return the data in cache first. If the data(`stale`) in cache are expired, data will be fetched by calling API and update it in cache (`revalidate`).
+`SWR`,full name is `stale-while-revalidate`. It handle caching data following HTTP standard. `SWR` will return the data in cache first. If the data(`stale`) in cache are expired, data will be fetched by calling API and update it in cache (`revalidate`) by using different strategies through configuring `option` under `SWR`.
 
 ### Install SWR
 ```
@@ -1028,11 +1028,39 @@ export function useProduct(id: number | undefined) {
   return { data, error };
 }
 ```
-
 Through the hooks, all of components can retrieve the data if need data under 1 requests to API only.The request is `de-duped`, `cached` and `shared` automatically.
+
+The `key` in `useSWR` can be string, or array. To use array as `key` because elements in array can be passed to `fetcher` such as getting post with specific post ID with URL, so that the `useSWR` can be more dynamic/flexibility to infinite post cache under infinite post ID (in theoretical).
+
+Actually, the definition of `key` in `useSWR` and `fetcher` like this:
+```tsx
+import useSWR from 'swr';
+
+const fetcher =  async(...params /*"https://jsonplaceholder.typicode.com","/posts","/1"*/)=>{
+  //params[0] => "https://jsonplaceholder.typicode.com"
+  //params[1] => "/posts"
+  //params[2] => "/1"
+  const res = await fetch(params.join('/'));
+  //code...
+}
+//assume id = 1
+const {data,error} = useSWR(
+  ["https://jsonplaceholder.typicode.com","posts",id],
+  fetcher
+);
 ```
 
+For example, the component need getting comments from specific post:
+```tsx
+//Get all of comments of a Post with ID 1.
+//https://jsonplaceholder.typicode.com/posts/1/comments
+//assume id = 1
+const {data,error} = useSWR(
+  ["https://jsonplaceholder.typicode.com","posts",id,"comments"],
+  fetcher
+)
 ```
+After `SWR` version >=1.1.0, `SWR` will check the key in deeply comparison when component get value in cache/revalidation, so the component can get data in cache/revalidation correctly even key may vary under each component rendering. 
 
 ### API Options
 ```typescript
@@ -1079,8 +1107,150 @@ function App () {
 ```
 All SWR hooks will use the same fetcher provided to load JSON data, and refresh every 3 seconds by default.
 
-### Setup Individual SWR hooks Configuration
+### Error Handling in fetcher
+Basic Version:
+```tsx
+const fetcher = async(url,...params)=>{
+  let completedURL=url;
+  if (!!params){
+    completedURL = Object.keys(params).reduce((link,path)=>`${link}/${path}`,url);
+  }
+  const res = await fetch(completedURL);
+  if (!res.ok){
+    const error = new Error("An error occurred while fetching the data.");
+    error.info = await res.json();
+    error.status = res.status;
+    throw error;
+  }
+}
+//....
+const {data,error/*, isValidating, mutate*/} = useSWR(["https://jsonplaceholder.typicode.com/posts",1],fetcher);
+//...
+```
 
+To control conditions of retry(update data in cache) under fetching data fail:
+```tsx
+const {data,error/*, isValidating, mutate*/} = useSWR(
+  ["https://jsonplaceholder.typicode.com/posts",1],
+  fetcher,
+  {
+    onErrorRetry: (error,key,config,revalidate,{retryCount})=>{
+      if(error.status === 404) return /*Never retry if 404*/
+      if(key === "https://jsonplaceholder.typicode.com/posts/1") return /*Never retry this URL*/
+      if(retryCount >= 5) return /*Only retry up to 5 times*/
+
+      // Retry after 5 seconds.
+      setTimeout(()=>revalidate({retryCount}),5000);
+    }
+  }
+);
+```
+
+To notify the UI to show a toast/snackbar anywhere on web sites, or log it in server, so we need handle error globally. This would be setup under `SWRConfig` component:
+```tsx
+const onError = (error,key)=>{
+    if (error.status === 404){
+      //Show a snackbar - "Page not found"
+      return;
+    }
+    if (key === "https://jsonplaceholder.typicode.com/posts/1"){
+      //Redirect to Error Page - "Post has been removed"
+      return;
+    }
+}
+<SWRConfig value={{onError}}>
+  <ProductList>
+</SWRConfig>
+```
+
+### Revalidate Cache Strategies
+Until this point, "Fetching and Storing data in cache" is demonstrated only. But how to revalidate cache if data stale? The one of default strategies of `SWR` is that the cache is revalidated automatically when the page is re-focused/switching tabs. That is very useful of slept page/tab.
+```tsx
+//Demo this under 2 browsers.
+```
+To disable `Revalidate on Focus`, please add `revalidateOnFocus` option in `useSWR`/`SWRConfig`:
+```tsx
+useSWR(["https://jsonplaceholder.typicode.com/posts",1],fetcher, fetcher, { revalidateOnFocus: false })
+```
+
+Other than strategy above, `SWR` provide other strategies such as `Revalidate on Interval`, `Revalidate on Reconnect`,etc...
+* Revalidate on Interval
+`SWR` can revalidate the cache every specific time such as 3 seconds like below example:
+```tsx
+useSWR(["https://jsonplaceholder.typicode.com/posts",1],fetcher, fetcher, { refreshInterval: 3000 })
+```
+
+* Revalidate on Reconnect
+`SWR` can revalidate the cache when the network is reconnected such as user unlock the PC which disconnect network under sleep mode, so that `SWR` make sure that data has already up-to-date.
+```tsx
+//Demo this under unlock PC.
+```
+
+To disable `Revalidate on Reconnect`, please add `revalidateOnFocus` option in `useSWR`/`SWRConfig`:
+```tsx
+useSWR(["https://jsonplaceholder.typicode.com/posts",1],fetcher, fetcher, { revalidateOnReconnect : false })
+```
+
+If the data (e.g. Avatar URL) never updating on UI/in cache after writing in cache at once, `useSWRImmutable` can instead of `useSWR`. The parameters in `useSWRImmutable` is the same as that of `useSWR`.
+```tsx
+import useSWRImmutable from 'swr/immutable'
+
+// ...
+useSWRImmutable("/api/currentUser", fetcher, options)
+// ...
+```
+
+### Conditional Fetching
+Use `null` or pass a `function` as `key` to conditionally fetch data. If the function throws or returns a falsy value, SWR will not start the request.
+```tsx
+//if user has been logged in, the posts will be fetched from server. Otherwise, no posts are shown
+const [userIsLogin,setUserIsLogin] = useStatus(false);
+const {data,mutate} = useSWR(userIsLogin?'https://jsonplaceholder.typicode.com/posts':null,fetcher);
+
+useEffect(()=>{
+   fetch("/api/login",{
+    method:"POST",
+    headers:{"content-type":"application/json"},
+    body: JSON.stringify({username:admin,password:1234})
+  }).then(res=>res.json())
+  .then(result=>{
+     if(result.success){
+      setUserIsLogin(true);
+      mutate('https://jsonplaceholder.typicode.com/posts'/*,data:update it locally*/); //Login Success! Revalidated Cache again
+     }
+  })
+},[]);
+```
+
+`mutate()`can revalidate cache and update UI immediately without waiting `Revalidate Cache Strategies`. It also broadcast a revalidation message globally to other SWR hooks using the same key by calling mutate(key).
+
+The login code can be also put in the `function` which is the `key` of `useSWR`.
+```tsx
+const {data} = useSWR(()=>{
+  fetch("/api/login",{
+    method:"POST",
+    headers:{"content-type":"application/json"},
+    body: JSON.stringify({username:admin,password:1234})
+  }).then(res=>res.json())
+  .then(result=>{
+     if(result.success){
+      return 'https://jsonplaceholder.typicode.com/posts'
+     }else{
+      return null;
+     }
+  })
+},fetcher)
+```
+
+To simplify the case, `SWR` can fetch data by using fetching data from another `useSWR`:
+```tsx
+//...
+const { data: user } = useSWR('/api/user')
+const { data: projects } = useSWR(() => '/api/projects?uid=' + user.id)
+
+if (!projects) return 'loading...'
+return 'You have ' + projects.length + ' projects'
+```
 
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
