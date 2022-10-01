@@ -1273,6 +1273,33 @@ function App () {
 }
 ```
 
+Varied Example: Infinite Loading
+The component will shown one more page/section by clicking "Load More" button and showing the total number of items shown in the page. Without `SWR`, it is very difficult. With `SWR`, the code become more easier like below:
+```tsx
+import useSWRInfinite from 'swr/infinite';
+
+const getKey =  (pageIndex,previousPageData) => {
+  //If previous page has already no data/undefine, fetching data is stopped by returning null
+  if (previousPageData && !previousPageData.length) return null;
+  //Otherwise,c return the URL fetching data
+  return `https://dummyjson.com/products?limit=10&skip=${10*(pageIndex-1)}&select=title,price`
+}
+
+function ProductList(){
+  const {data,size,setSize} =  useSWRInfinite(getKey,fetcher);
+  if(!data) return <>Loading...</>
+  let totalProducts = data.reduce((total,products)=>total+products.length,0);
+  return
+  (<div>
+    <h2>{totalProducts} Products shown</h2>
+    {
+      data.map((products)=>products.map(product=>(<div>${product.title} ${product.price}</div>)))
+    }
+    <button onClick={()=>setSize(size+1)}>Load More</button>
+  </div>)
+}
+export default ProductList;
+``` 
 
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/

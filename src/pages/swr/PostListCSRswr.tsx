@@ -42,20 +42,6 @@ const fetcher = (url) => {
   );
 };
 const PostList = ({ posts }: PostsProps) => {
-<<<<<<< HEAD
-  // const {
-  //   data /* Return value of fetcher - data is undefined if data is not ready*/,
-  //   error /* Error thrown from fetcher */,
-  // } = useSWR(
-  //   /*key*/ () =>
-  //     /*value/callback*/
-  //     posts.length == 1
-  //       ? 'https://jsonplaceholder.typicode.com/posts'
-  //       : null /*, or, undefined(throw error) - No Calling API - Lazy Loading, e.g., Read More Product*/,
-  //   /*fetch function,取得資料的函式, e.g., ()=>axios/fetch */ fetcher,
-  // );
-  const { data, error } = useProduct(undefined);
-=======
   const {
     data /* Return value of fetcher - data is undefined if data is not ready*/,
     error /* Error thrown from fetcher */,
@@ -67,7 +53,6 @@ const PostList = ({ posts }: PostsProps) => {
     //: null /*, or, undefined(throw error) - No Calling API - Lazy Loading, e.g., Read More Product*/,
     /*fetch function,取得資料的函式, e.g., ()=>axios/fetch */ fetcher,
   );
->>>>>>> 1f3bd4cbfbe1d546cda3b23b831c4c0c9e36ba12
   const [postsCache, setPostsCache] = useState<PostData[]>([...posts]);
 
   useEffect(() => {
