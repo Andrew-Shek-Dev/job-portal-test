@@ -1244,13 +1244,35 @@ const {data} = useSWR(()=>{
 
 To simplify the case, `SWR` can fetch data by using fetching data from another `useSWR`:
 ```tsx
-//...
+//TODO Complete Case
 const { data: user } = useSWR('/api/user')
 const { data: projects } = useSWR(() => '/api/projects?uid=' + user.id)
 
 if (!projects) return 'loading...'
 return 'You have ' + projects.length + ' projects'
 ```
+
+### Bonus: Pagination
+We can use `SWR` pre-load the next page in cache first like following example, so that user navigate to next page from cache quickly without waiting:
+```tsx
+//let user see a 10 products on page each time
+function Page ({ index }) {
+  const { data } = useSWR(`https://dummyjson.com/products?limit=10&skip=${10*(index-1)}&select=title,price`, fetcher);
+  return data.map(item => <div key={item.title}>{item.price}</div>)
+}
+
+function App () {
+  const [pageIndex, setPageIndex] = useState(0);
+
+  return <div>
+    <Page index={pageIndex}/>
+    <div style={{ display: 'none' }}><Page index={pageIndex + 1}/></div>{/*pre-load the next page in cache and hide it first*/}
+    <button onClick={() => setPageIndex(pageIndex - 1)}>Previous</button>
+    <button onClick={() => setPageIndex(pageIndex + 1)}>Next</button>
+  </div>
+}
+```
+
 
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
