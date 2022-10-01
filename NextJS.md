@@ -1276,7 +1276,26 @@ function App () {
 Varied Example: Infinite Loading
 The component will shown one more page/section by clicking "Load More" button and showing the total number of items shown in the page. Without `SWR`, it is very difficult. With `SWR`, the code become more easier like below:
 ```tsx
-import useSWRInfinite from 'swr/infinite';
+//without SWR
+function App () {
+  const [cnt, setCnt] = useState(1)
+
+  const pages = []
+  for (let i = 0; i < cnt; i++) {
+    pages.push(<Page index={i} key={i} />)
+  }
+
+  return <div>
+    <p>??? items</p> {/*How to know the items each page/section?????*/}
+    {pages} {/*Page Index only, not data length*/}
+    <button onClick={() => setCnt(cnt + 1)}>Load More</button>
+  </div>
+}
+```
+
+```tsx
+//with SWR
+import useSWRInfinite from 'swr/infinite'; //<- use useSWRInfinite hook
 
 const getKey =  (pageIndex,previousPageData) => {
   //If previous page has already no data/undefine, fetching data is stopped by returning null
