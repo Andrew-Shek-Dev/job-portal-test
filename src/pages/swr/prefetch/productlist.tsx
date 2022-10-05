@@ -41,6 +41,13 @@ const ProductList = () => {
       {products.map((product) => (
         <div>{JSON.stringify(product)}</div>
       ))}
+      <button
+        onClick={() => {
+          router.push('/swr/prefetch/product/1');
+        }}
+      >
+        Go to Details Page
+      </button>
       <button onClick={() => setSize(size + 1)}>Load More</button>
     </div>
   );

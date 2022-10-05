@@ -6,7 +6,10 @@ const ProductId = () => {
   const router = useRouter();
   const { data } = useSWR(
     `https://dummyjson.com/products/${router.query.productId}`,
-    (url) => fetch(url).then((res) => res.json()),
+    (url) => {
+      console.log('prefetch');
+      return fetch(url).then((res) => res.json());
+    },
   );
   if (!data) return <>Loading...</>;
   return <div>{JSON.stringify(data)}</div>;
