@@ -1122,6 +1122,7 @@ const fetcher = async(url,...params)=>{
     error.status = res.status;
     throw error;
   }
+  return await res.json();
 }
 //....
 const {data,error/*, isValidating, mutate*/} = useSWR(["https://jsonplaceholder.typicode.com/posts",1],fetcher);
@@ -1320,12 +1321,114 @@ function ProductList(){
 export default ProductList;
 ``` 
 
+### Prefetching Data
+Next.js will give the pre-built version of HTML first under SSR/SSG. The data also can be preloaded with the built HTML, so that the page is loaded in faster way.
+
+* In sugar syntax (HTML) way:
+```tsx
+//_document.tsx
+export default class MyDocument extends Document {
+    render(): JSX.Element {
+    return (
+      <Html lang="en">
+        <Head>
+          <link
+            rel="prefetch"
+            href="https://dummyjson.com/products?limit=10&skip=0&select=title,price"
+            crossOrigin="anonymous"
+          />
+        </Head>
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
+}
+```
+```tsx
+//productlist.tsx
+import useSWRInfinite from 'swr/infinite';
+
+const ProductList = () => {
+  const getProducts = (pageIdx, previousPageData) => {
+    if (previousPageData && previousPageData.length === 0) return null;
+    return `https://dummyjson.com/products?limit=10&skip=${
+      10 * pageIdx
+    }&select=title,price`;
+  };
+  const {
+    data: products,
+    isValidating,
+    size,
+    setSize,
+  } = useSWRInfinite(
+    getProducts,
+    (url) => fetch(url).then((res) => res.json()),
+    {
+      initialSize: 2,
+    },
+  );
+
+  if (isValidating) return <>Loading...</>;
+
+  return (
+    <div>
+      {products.map((product) => (
+        <div>{JSON.stringify(product)}</div>
+      ))}
+      <button onClick={() => setSize(size + 1)}>Load More</button>
+    </div>
+  );
+};
+
+export default ProductList;
+```
+`<Head></Head>` under Next.js in details and example can found in this [document](https://nextjs.org/docs/api-reference/next/head).
+
+The prefetching processing can be shown in the browser inspector, you will find that `https://dummyjson.com/products?limit=10&skip=0&select=title,price` is called under the HTML page, and it will be fetched again under `javascript` file. And `https://dummyjson.com/products?limit=10&skip=10&select=title,price` also is called under `javascript` file.
+
+* Prefetching data programmatically
+```tsx
+import {mutate} from 'swr';
+import {useEffect} from 'react';
+import {useRouter} from 'next/router';
+import useSWRInfinite from 'swr/infinite';
+
+export function ProductList(){
+  const router = useRouter();
+  const getProducts = (pageIdx,previousPageData)=>{
+    if (previousPageData && previousPageData.length === 0) return null;
+    return `https://dummyjson.com/products?limit=10&skip=${10*(pageIdx-1)}&select=title,price`;
+  }
+
+  const {data,size,setSize} = useSWRInfinite(getProducts,url=>fetch(url).then(res=>res.json()));
+
+  useEffect(()=>{
+    //Preload a Product with ID 1 and the correspondent page
+    const url = "https://dummyjson.com/products/1";
+    mutate(url,fetch(url).then(res=>res.json()));
+    router.prefetch("/product/1");
+  },[]);
+  return (
+    <>
+      {data.products.map((product)=><div>{JSON.stringify*(product)}</div>)}
+    </>
+  )
+}
+```
+It can be used under (page prefetching)[https://nextjs.org/docs/api-reference/next/router#routerprefetch] in Next.js.
+
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
 * https://javascript.plainenglish.io/why-you-should-use-useswr-instead-of-usestate-when-calling-apis-8b6de5dc18fc
 * https://17.reactjs.org/docs/concurrent-mode-suspense.html#approach-1-fetch-on-render-not-using-suspense
 * https://lo-victoria.com/a-look-at-react-hooks-useswr-for-data-fetching-in-react
 
+
+## Backend APIs@Next.js
+TBC
 
 ## Common Issue List
 * Issue#1 : Why the server side props doesn't called 

@@ -3,9 +3,9 @@ module.exports = {
         BACKEND_URL:'http:///localhost:3000'
     },
     images:{
-        domains:['fakestoreapi.com']
+        domains:['fakestoreapi.com','dummyjson.com']
     },
     compiler: {
         styledComponents: true,
-    }
+    },
 }
