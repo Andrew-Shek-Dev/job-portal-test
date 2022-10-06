@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { mutate } from 'swr';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 const ProductList = () => {
   const router = useRouter();
@@ -16,12 +17,8 @@ const ProductList = () => {
     isValidating,
     size,
     setSize,
-  } = useSWRInfinite(
-    getProducts,
-    (url) => fetch(url).then((res) => res.json()),
-    {
-      initialSize: 2,
-    },
+  } = useSWRInfinite(getProducts, (url) =>
+    fetch(url).then((res) => res.json()),
   );
 
   useEffect(() => {
@@ -41,13 +38,15 @@ const ProductList = () => {
       {products.map((product) => (
         <div>{JSON.stringify(product)}</div>
       ))}
-      <button
-        onClick={() => {
-          router.push('/swr/prefetch/product/1');
-        }}
-      >
-        Go to Details Page
-      </button>
+      {/*
+        Note that this is bad for SEO if you want it to be crawled.
+        Reference:https://stackoverflow.com/questions/65086108/next-js-link-vs-router-push-vs-a-tag
+       <button onClick={ () => router.push('/swr/prefetch/product/1')}>Go to Details Page</button> 
+       */}
+      {/* It's good for SEO. */}
+      <Link href="/swr/prefetch/product/1">
+        <a>Go to Details Page</a>
+      </Link>
       <button onClick={() => setSize(size + 1)}>Load More</button>
     </div>
   );

@@ -1389,36 +1389,135 @@ export default ProductList;
 
 The prefetching processing can be shown in the browser inspector, you will find that `https://dummyjson.com/products?limit=10&skip=0&select=title,price` is called under the HTML page, and it will be fetched again under `javascript` file. And `https://dummyjson.com/products?limit=10&skip=10&select=title,price` also is called under `javascript` file.
 
-* Prefetching data programmatically
+* Prefetching data programmatically, preloading a product detail's page (Product ID 1) as example,
 ```tsx
-import {mutate} from 'swr';
-import {useEffect} from 'react';
-import {useRouter} from 'next/router';
+import { useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
+import { mutate } from 'swr';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
-export function ProductList(){
+const ProductList = () => {
   const router = useRouter();
-  const getProducts = (pageIdx,previousPageData)=>{
+  const getProducts = (pageIdx, previousPageData) => {
     if (previousPageData && previousPageData.length === 0) return null;
-    return `https://dummyjson.com/products?limit=10&skip=${10*(pageIdx-1)}&select=title,price`;
-  }
+    return `https://dummyjson.com/products?limit=10&skip=${
+      10 * pageIdx
+    }&select=title,price`;
+  };
+  const {
+    data: products,
+    isValidating,
+    size,
+    setSize,
+  } = useSWRInfinite(getProducts, (url) =>
+    fetch(url).then((res) => res.json()),
+  );
 
-  const {data,size,setSize} = useSWRInfinite(getProducts,url=>fetch(url).then(res=>res.json()));
-
-  useEffect(()=>{
+  useEffect(() => {
     //Preload a Product with ID 1 and the correspondent page
-    const url = "https://dummyjson.com/products/1";
-    mutate(url,fetch(url).then(res=>res.json()));
-    router.prefetch("/product/1");
-  },[]);
+    const url = 'https://dummyjson.com/products/1';
+    mutate(
+      url,
+      fetch(url).then((res) => res.json()),
+    );
+    router.prefetch('/swr/prefetch/product/1');
+  }, []);
+
+  if (isValidating) return <>Loading...</>;
+
   return (
-    <>
-      {data.products.map((product)=><div>{JSON.stringify*(product)}</div>)}
-    </>
-  )
-}
+    <div>
+      {products.map((product) => (
+        <div>{JSON.stringify(product)}</div>
+      ))}
+      {/*
+        Note that this is bad for SEO if you want it to be crawled.
+        Reference:https://stackoverflow.com/questions/65086108/next-js-link-vs-router-push-vs-a-tag
+       <button onClick={ () => router.push('/swr/prefetch/product/1')}>Go to Details Page</button> 
+       */}
+       {/* It's good for SEO. */}
+      <Link href="/swr/prefetch/product/1">
+        <a>Go to Details Page</a>
+      </Link>
+      <button onClick={() => setSize(size + 1)}>Load More</button>
+    </div>
+  );
+};
+
+export default ProductList;
 ```
 It can be used under (page prefetching)[https://nextjs.org/docs/api-reference/next/router#routerprefetch] in Next.js.
+
+### Pre-fill Data
+We can pre-fill data in `SWR` cache first if `SWR` hasn't fetch data yet. To get logged-in user API as example, if user doesn't login, "guest" is assigned as first:
+```tsx
+useSWR('/api/currentUser',fetcher,{fallbackData:{username:guest}})
+```
+
+### How to apply SWR in Next.js?
+Under following conditions are very suitable using `SWR`:
+* Updating data frequently
+* Don't need pre-render the data
+* Private and User-Specific
+* Don't need SEO
+
+The approach is that:
+* Showing the page without data (loading page) first. The data is fetched in the meantime.(Skeleton Loading)[https://medium.com/creditas-tech/react-suspense-swr-skeleton-e1979e9f32f0],which will be introduced more in bonus section, (React Suspense)[/].
+* The page is re-rendered if the data fetched is ready.
+
+If pre-rendering required under fully powered by`SWR`, we need SSG/SSR. To do this, the fetched data in server side is passed to `SWRConfig` through `fallback` field in `props`.
+```tsx
+import useSWRInfinite from 'swr/infinite';
+import { SWRConfig } from 'swr';
+import { GetStaticProps } from 'next';
+
+const ProductList = ({ fallback }) => {
+  const getProducts = (pageIdx, previousPageData) => {
+    if (previousPageData && previousPageData.length === 0) return null;
+    return `https://dummyjson.com/products?limit=10&skip=${
+      10 * pageIdx
+    }&select=title,price`;
+  };
+  const {
+    data: products,
+    isValidating,
+    size,
+    setSize,
+  } = useSWRInfinite(getProducts, (url) =>
+    fetch(url).then((res) => res.json()),
+  );
+
+  if (isValidating) return <>Loading...</>;
+
+  return (
+    <SWRConfig value={{ fallback }}>
+      <div>
+        {products.map((product) => (
+          <div>{JSON.stringify(product)}</div>
+        ))}
+        <button onClick={() => setSize(size + 1)}>Load More</button>
+      </div>
+    </SWRConfig>
+  );
+};
+
+export default ProductList;
+
+export const getStaticProps: GetStaticProps = async () => {
+  const url = `https://dummyjson.com/products?limit=10&skip=0&select=title,price`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return {
+    props: {
+      fallback: {
+        [url]: data,
+      },
+    },
+  };
+};
+```
+It is good at SEO because the fetched data is embedded in HTML page, which can be found in browser inspector (network tab). The data also is cached and revalidated over time.
 
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
@@ -1437,8 +1536,6 @@ Cause : wrong spelling of function name such as getServerProps(❌), getServerSi
 Reference : https://stackoverflow.com/questions/73651855/getserversideprops-not-getting-called-for-nested-page-in-next-with-typescript
 
 
-## References
-* https://ithelp.ithome.com.tw/users/20110504/ironman/4269
-* https://medium.com/starbugs/%E5%88%9D%E6%8E%A2-server-side-rendering-%E8%88%87-next-js-%E6%8E%A8%E5%9D%91%E8%A8%88%E7%95%AB-d7a9fb48a964
+## References中木B-d7a9fb48a964
 * https://blog.logrocket.com/create-react-app-vs-next-js-performance-differences/
 * https://theodorusclarence.com/blog/nextjs-fetch-method
