@@ -54,7 +54,7 @@ Cons
 * 伺服器一直處理使用者的請求，一直產生有資料的 HTML，並送到瀏覽器端，這樣的工作對於伺服器來說是一個負擔。如果是blog case，就會唔太適合。因為Blog不會每分每秒都在改變，浪費資源處理並產生有資料的HTML - SSG幫到你！
 
 ## Concept Section : SSG (Static Side Generation) - Next.js
-SSG 意味著所有的內容都在 bulid 的時候都打包進入檔案中，所以使用者在瀏覽網站時，就可以拿到完整的 HTML 檔案。優點除了可以有利於 SEO 之外，還有因為每次使用者拿到的 HTML 內容都不會變，所以還可以讓 HTML 被 cache 在 CDN 上，很適合用在資料變動較小的網站中，像是Blog、產品介紹頁這種應用中。
+SSG 意味著所有的內容都在 build 的時候都打包進入檔案中，所以使用者在瀏覽網站時，就可以拿到完整的 HTML 檔案。優點除了可以有利於 SEO 之外，還有因為每次使用者拿到的 HTML 內容都不會變，所以還可以讓 HTML 被 cache 在 CDN 上，很適合用在資料變動較小的網站中，像是Blog、產品介紹頁這種應用中。
 
 ## Concept Section : Factors on selection of CSR,SSR and SSG
 * SEO (CSR 實際上可以參與 SEO，但是不利於內容變動快速的網站)
