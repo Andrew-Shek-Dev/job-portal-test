@@ -1479,12 +1479,26 @@ const ProductList = ({ fallback }) => {
       10 * pageIdx
     }&select=title,price`;
   };
+
+  interface Product {
+    id: string;
+    title: string;
+    price: number;
+    description: string;
+    category: string;
+    image: string;
+  }
+
+  interface Error{
+    msg:string
+  }
+
   const {
     data: products,
     isValidating,
     size,
     setSize,
-  } = useSWRInfinite(getProducts, (url) =>
+  } = useSWRInfinite<Product,Error>(getProducts, (url) =>
     fetch(url).then((res) => res.json()),
   );
 
@@ -1519,6 +1533,8 @@ export const getStaticProps: GetStaticProps = async () => {
 ```
 It is good at SEO because the fetched data is embedded in HTML page, which can be found in browser inspector (network tab). The data also is cached and revalidated over time.
 
+`Conditional fetch` and `multiple arguments` in `SW`R is used with `dynamic routes` in `next.js`, so that the application would keep the advantage of pre-rendering and that of client cache. So, the performance of loading/refreshing page can be improved.
+
 ### References
 * https://blog.skk.moe/post/why-you-should-not-fetch-data-directly-in-use-effect/
 * https://javascript.plainenglish.io/why-you-should-use-useswr-instead-of-usestate-when-calling-apis-8b6de5dc18fc
@@ -1536,6 +1552,6 @@ Cause : wrong spelling of function name such as getServerProps(❌), getServerSi
 Reference : https://stackoverflow.com/questions/73651855/getserversideprops-not-getting-called-for-nested-page-in-next-with-typescript
 
 
-## References中木B-d7a9fb48a964
+## References
 * https://blog.logrocket.com/create-react-app-vs-next-js-performance-differences/
 * https://theodorusclarence.com/blog/nextjs-fetch-method

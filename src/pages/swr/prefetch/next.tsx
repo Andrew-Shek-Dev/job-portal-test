@@ -9,12 +9,26 @@ const ProductList = ({ fallback }) => {
       10 * pageIdx
     }&select=title,price`;
   };
+
+  interface Product {
+    id: string;
+    title: string;
+    price: number;
+    description: string;
+    category: string;
+    image: string;
+  }
+
+  interface Error {
+    msg: string;
+  }
+
   const {
     data: products,
     isValidating,
     size,
     setSize,
-  } = useSWRInfinite(getProducts, (url) =>
+  } = useSWRInfinite<Product, Error>(getProducts, (url) =>
     fetch(url).then((res) => res.json()),
   );
 
